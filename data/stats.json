@@ -7,42 +7,42 @@
       "name": "Lincoln Roth",
       "number": 1,
       "position": "D",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 4,
       "name": "Maddox Terreta",
       "number": 4,
       "position": "D",
-      "gp_override": 5
+      "gp_override": 6
     },
     {
       "id": 7,
       "name": "Avery Kincaid",
       "number": 7,
       "position": "F",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 14,
       "name": "Helena Turosik",
       "number": 14,
       "position": "F",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 15,
       "name": "Maddy Kincaid",
       "number": 15,
       "position": "F",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 16,
       "name": "Forrest Perry",
       "number": 16,
       "position": "F",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 27,
@@ -56,7 +56,7 @@
       "name": "Jacob Fox",
       "number": 29,
       "position": "G",
-      "gp_override": 8
+      "gp_override": 9
     },
     {
       "id": 41,
@@ -70,7 +70,7 @@
       "name": "Alex Gibson",
       "number": 43,
       "position": "D",
-      "gp_override": 8
+      "gp_override": 9
     }
   ],
   "tournaments": [
