@@ -1,11 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Tournaments</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3 L33 18 L18 33 L3 18 Z" fill="#1565C0" opacity="0.15"/>
+          <path d="M6 14 Q18 2 30 14 Q26 22 18 28 Q10 22 6 14Z" fill="#1565C0"/>
+          <path d="M14 16 Q18 11 22 16 Q20 20 18 22 Q16 20 14 16Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2025–26 Season</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="tournament.html" class="nav-link active">Tournaments</a>
+      <a href="game-entry.html" class="nav-link nav-entry">+ Add Game</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+  <div id="tournaments-container">
+    <p class="loading-cell">Loading tournaments…</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+  <span>·</span>
+  <a href="game-entry.html">Add a game</a>
+</footer>
+
+<script>
+async function loadData() {
+  try {
+    const res = await fetch('data/stats.json');
+    const data = await res.json();
+    document.getElementById('season-label').textContent = (data.season || '') + ' Season';
+    renderTournaments(data);
+  } catch(e) {
+    document.getElementById('tournaments-container').innerHTML =
+      '<p class="loading-cell" style="color:#c0392b">Could not load stats.json.</p>';
+  }
+}
+
+function renderTournaments(data) {
+  const el = document.getElementById('tournaments-container');
+  if (!data.tournaments.length) {
+    el.innerHTML = '<p class="no-games">No tournaments yet. <a href="game-entry.html">Add the first game.</a></p>';
+    return;
+  }
+
+  el.innerHTML = data.tournaments.map(t => {
+    let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
+    t.games.forEach(g => {
+      gf += g.falcons_score;
+      ga += g.opponent_score;
+      if (g.falcons_score > g.opponent_score) w++;
+      else if (g.falcons_score < g.opponent_score) l++;
+      else tie++;
+    });
+
+    // Per-player stats for this tournament
+    const playerMap = {};
+    data.players.forEach(p => {
+      playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0 };
+    });
+    t.games.forEach(g => {
+      g.stats.forEach(s => {
+        if (!playerMap[s.player_id]) return;
+        playerMap[s.player_id].gp++;
+        playerMap[s.player_id].goals    += s.goals    || 0;
+        playerMap[s.player_id].assists  += s.assists  || 0;
+        playerMap[s.player_id].ps_goals += s.ps_goals || 0;
+        playerMap[s.player_id].pim      += s.pim      || 0;
+      });
+    });
+    const players = Object.values(playerMap)
+      .map(p => ({ ...p, points: p.goals + p.assists }))
+      .sort((a, b) => b.points - a.points || b.goals - a.goals);
+
+    const gameRows = t.games.map(g => {
+      const result = g.falcons_score > g.opponent_score ? 'W' :
+                     g.falcons_score < g.opponent_score ? 'L' : 'T';
+      const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
+      return `<div class="game-card">
+        <span class="result-badge ${cls}">${result}</span>
+        <div class="game-info">
+          <span class="game-opponent">vs ${g.opponent}</span>
+          <span class="game-score">${g.falcons_score}–${g.opponent_score}</span>
+        </div>
+        <span class="game-date">${formatDate(g.date)}</span>
+      </div>`;
+    }).join('');
+
+    const playerRows = players.map((p, i) => `
+      <tr>
+        <td class="col-rank">${i + 1}</td>
+        <td class="col-player">
+          <span class="player-num">#${p.number}</span>
+          <span class="player-name">${p.name}</span>
+        </td>
+        <td class="col-pos"><span class="pos-badge pos-${p.position}">${p.position}</span></td>
+        <td class="col-stat">${p.gp}</td>
+        <td class="col-stat">${p.goals}</td>
+        <td class="col-stat">${p.assists}</td>
+        <td class="col-stat col-pts">${p.points}</td>
+        <td class="col-stat">${p.ps_goals}</td>
+        <td class="col-stat">${p.pim}</td>
+      </tr>`).join('');
+
+    return `
+    <section class="tournament-section">
+      <div class="tournament-header">
+        <div class="tournament-title-block">
+          <h2 class="tournament-name">${t.name}</h2>
+          <div class="tournament-meta">${formatDate(t.date)} · ${t.location || ''}</div>
+        </div>
+        <div class="tournament-record">
+          <span class="record-pill">${w}–${l}–${tie}</span>
+          <span class="gf-ga">GF ${gf} · GA ${ga}</span>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">Games</h3>
+      <div class="game-log-mini">${gameRows}</div>
+
+      <h3 class="subsection-title">Player stats</h3>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-player">Player</th>
+              <th class="col-pos">Pos</th>
+              <th class="col-stat">GP</th>
+              <th class="col-stat">G</th>
+              <th class="col-stat">A</th>
+              <th class="col-stat">PTS</th>
+              <th class="col-stat">PS</th>
+              <th class="col-stat">PIM</th>
+            </tr>
+          </thead>
+          <tbody>${playerRows}</tbody>
+        </table>
+      </div>
+    </section>`;
+  }).join('');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+loadData();
+</script>
 </body>
 </html>

@@ -1,11 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Entry</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Add Game</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3 L33 18 L18 33 L3 18 Z" fill="#1565C0" opacity="0.15"/>
+          <path d="M6 14 Q18 2 30 14 Q26 22 18 28 Q10 22 6 14Z" fill="#1565C0"/>
+          <path d="M14 16 Q18 11 22 16 Q20 20 18 22 Q16 20 14 16Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label">Add a game</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="tournament.html" class="nav-link">Tournaments</a>
+      <a href="game-entry.html" class="nav-link nav-entry active">+ Add Game</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="entry-layout">
+    <div class="entry-form-col">
+
+      <div class="form-card">
+        <h2 class="form-section-title">Game details</h2>
+
+        <div class="form-row">
+          <label class="form-label" for="tournament-select">Tournament</label>
+          <select id="tournament-select" class="select-input">
+            <option value="">— select or type new —</option>
+          </select>
+        </div>
+
+        <div class="form-row" id="new-tournament-row" style="display:none">
+          <label class="form-label" for="new-tournament-name">New tournament name</label>
+          <input type="text" id="new-tournament-name" class="text-input" placeholder="e.g. Spring Classic">
+          <input type="text" id="new-tournament-location" class="text-input" placeholder="Location (e.g. Pittsburgh, PA)" style="margin-top:6px">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="game-date">Date</label>
+          <input type="date" id="game-date" class="text-input">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="opponent">Opponent</label>
+          <input type="text" id="opponent" class="text-input" placeholder="e.g. Eagles">
+        </div>
+
+        <div class="form-row score-row">
+          <div>
+            <label class="form-label">Falcons score</label>
+            <input type="number" id="falcons-score" class="score-input" min="0" value="0">
+          </div>
+          <div class="score-divider">–</div>
+          <div>
+            <label class="form-label">Opponent score</label>
+            <input type="number" id="opponent-score" class="score-input" min="0" value="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-section-title">Player stats</h2>
+        <div class="player-stats-header">
+          <span class="ps-col-player">Player</span>
+          <span class="ps-col-num" title="Goals">G</span>
+          <span class="ps-col-num" title="Assists">A</span>
+          <span class="ps-col-num" title="Penalty Shot Goals">PS</span>
+          <span class="ps-col-num" title="Penalty Minutes">PIM</span>
+        </div>
+        <div id="player-rows"></div>
+      </div>
+
+      <button class="generate-btn" id="generate-btn">Generate JSON snippet</button>
+
+    </div>
+
+    <div class="output-col">
+      <div class="output-card" id="output-card" style="display:none">
+        <div class="output-header">
+          <h3 class="output-title">JSON to paste into stats.json</h3>
+          <button class="copy-btn" id="copy-btn">Copy</button>
+        </div>
+        <div class="output-instructions">
+          <strong>How to add this game:</strong>
+          <ol>
+            <li>Copy the JSON below.</li>
+            <li>Open <code>data/stats.json</code> on GitHub.</li>
+            <li>Find the correct tournament's <code>"games"</code> array (or add a new tournament block).</li>
+            <li>Paste this object into that array.</li>
+            <li>Click <strong>Commit changes</strong>. Your site updates in ~1 minute.</li>
+          </ol>
+        </div>
+        <pre class="output-pre" id="output-pre"></pre>
+      </div>
+
+      <div class="how-it-works-card">
+        <h3 class="output-title">How updates work</h3>
+        <p>This site stores all stats in a single <code>stats.json</code> file on GitHub. Because GitHub Pages is a static host, you update data by editing that file directly on GitHub.com — no server required.</p>
+        <p>The form above generates the exact JSON snippet you need. The whole process takes about 30 seconds per game.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+  <span>·</span>
+  <a href="index.html">View leaderboard</a>
+</footer>
+
+<script>
+let data = null;
+
+async function loadData() {
+  try {
+    const res = await fetch('data/stats.json');
+    data = await res.json();
+    populateTournamentSelect();
+    renderPlayerRows();
+  } catch(e) {
+    document.getElementById('player-rows').innerHTML =
+      '<p style="color:#c0392b;font-size:13px">Could not load stats.json — make sure it exists in the data/ folder.</p>';
+  }
+}
+
+function populateTournamentSelect() {
+  const sel = document.getElementById('tournament-select');
+  data.tournaments.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__';
+  newOpt.textContent = '+ New tournament…';
+  sel.appendChild(newOpt);
+
+  sel.addEventListener('change', () => {
+    document.getElementById('new-tournament-row').style.display =
+      sel.value === '__new__' ? 'block' : 'none';
+  });
+}
+
+function renderPlayerRows() {
+  const el = document.getElementById('player-rows');
+  el.innerHTML = data.players.map(p => `
+    <div class="player-stat-row">
+      <span class="ps-col-player">
+        <span class="player-num">#${p.number}</span>
+        <span class="player-name">${p.name}</span>
+      </span>
+      <input type="number" class="stat-mini" id="g-${p.id}" min="0" value="0" aria-label="Goals for ${p.name}">
+      <input type="number" class="stat-mini" id="a-${p.id}" min="0" value="0" aria-label="Assists for ${p.name}">
+      <input type="number" class="stat-mini" id="ps-${p.id}" min="0" value="0" aria-label="Penalty shot goals for ${p.name}">
+      <input type="number" class="stat-mini" id="pim-${p.id}" min="0" value="0" aria-label="Penalty minutes for ${p.name}">
+    </div>
+  `).join('');
+}
+
+function generateId() {
+  return 'g' + Date.now().toString(36);
+}
+
+document.getElementById('generate-btn').addEventListener('click', () => {
+  const tournamentVal = document.getElementById('tournament-select').value;
+  const opponent = document.getElementById('opponent').value.trim();
+  const date = document.getElementById('game-date').value;
+  const falconsScore = parseInt(document.getElementById('falcons-score').value) || 0;
+  const opponentScore = parseInt(document.getElementById('opponent-score').value) || 0;
+
+  if (!opponent) { alert('Please enter an opponent name.'); return; }
+  if (!date) { alert('Please enter a game date.'); return; }
+  if (!tournamentVal) { alert('Please select or create a tournament.'); return; }
+
+  const stats = data.players.map(p => ({
+    player_id: p.id,
+    goals:    parseInt(document.getElementById(`g-${p.id}`).value)   || 0,
+    assists:  parseInt(document.getElementById(`a-${p.id}`).value)   || 0,
+    ps_goals: parseInt(document.getElementById(`ps-${p.id}`).value)  || 0,
+    pim:      parseInt(document.getElementById(`pim-${p.id}`).value) || 0
+  }));
+
+  const gameObj = {
+    id: generateId(),
+    opponent,
+    falcons_score: falconsScore,
+    opponent_score: opponentScore,
+    date,
+    stats
+  };
+
+  let output = '';
+
+  if (tournamentVal === '__new__') {
+    const tName = document.getElementById('new-tournament-name').value.trim() || 'New Tournament';
+    const tLoc  = document.getElementById('new-tournament-location').value.trim() || '';
+    const tObj = {
+      id: 't' + Date.now().toString(36),
+      name: tName,
+      date,
+      location: tLoc,
+      games: [gameObj]
+    };
+    output = '// Add this object to the "tournaments" array in stats.json:\n\n' +
+             JSON.stringify(tObj, null, 2);
+  } else {
+    const tName = data.tournaments.find(t => t.id === tournamentVal)?.name || '';
+    output = `// Paste this object into the "games" array of the "${tName}" tournament in stats.json:\n\n` +
+             JSON.stringify(gameObj, null, 2);
+  }
+
+  document.getElementById('output-pre').textContent = output;
+  document.getElementById('output-card').style.display = 'block';
+  document.getElementById('output-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = document.getElementById('output-pre').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+});
+
+// Default date to today
+document.getElementById('game-date').value = new Date().toISOString().split('T')[0];
+
+loadData();
+</script>
 </body>
 </html>

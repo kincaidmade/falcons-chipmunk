@@ -1,11 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Falcons Chipmunk</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Season Stats</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3 L33 18 L18 33 L3 18 Z" fill="#1565C0" opacity="0.15"/>
+          <path d="M6 14 Q18 2 30 14 Q26 22 18 28 Q10 22 6 14Z" fill="#1565C0"/>
+          <path d="M14 16 Q18 11 22 16 Q20 20 18 22 Q16 20 14 16Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2025–26 Season</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link active">Leaderboard</a>
+      <a href="tournament.html" class="nav-link">Tournaments</a>
+      <a href="game-entry.html" class="nav-link nav-entry">+ Add Game</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="page-controls">
+    <div class="control-group">
+      <label class="control-label" for="tournament-filter">Tournament</label>
+      <select id="tournament-filter" class="select-input">
+        <option value="all">All tournaments</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="position-filter">Position</label>
+      <select id="position-filter" class="select-input">
+        <option value="all">All positions</option>
+        <option value="F">Forwards</option>
+        <option value="D">Defense</option>
+        <option value="G">Goalies</option>
+      </select>
+    </div>
+    <div class="record-badge" id="record-badge"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="stats-table" id="stats-table">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th class="col-player">Player</th>
+          <th class="col-pos">Pos</th>
+          <th class="col-stat sortable active" data-col="gp" title="Games Played">GP</th>
+          <th class="col-stat sortable" data-col="goals" title="Goals">G</th>
+          <th class="col-stat sortable" data-col="assists" title="Assists">A</th>
+          <th class="col-stat sortable active-sort" data-col="points" title="Points">PTS</th>
+          <th class="col-stat sortable" data-col="ps_goals" title="Penalty Shot Goals">PS</th>
+          <th class="col-stat sortable" data-col="pim" title="Penalty Minutes">PIM</th>
+        </tr>
+      </thead>
+      <tbody id="stats-body">
+        <tr><td colspan="9" class="loading-cell">Loading stats…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-legend">
+    <span>GP = Games Played</span>
+    <span>G = Goals</span>
+    <span>A = Assists</span>
+    <span>PTS = Points (G+A)</span>
+    <span>PS = Penalty Shot Goals</span>
+    <span>PIM = Penalty Minutes</span>
+  </div>
+
+  <section class="game-log-section">
+    <h2 class="section-title">Recent games</h2>
+    <div id="game-log"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+  <span>·</span>
+  <a href="game-entry.html">Add a game</a>
+</footer>
+
+<script>
+let allData = null;
+let sortCol = 'points';
+let sortDir = 'desc';
+
+async function loadData() {
+  try {
+    const res = await fetch('data/stats.json');
+    allData = await res.json();
+    document.getElementById('season-label').textContent = (allData.season || '') + ' Season';
+    populateTournamentFilter();
+    render();
+    renderGameLog();
+  } catch(e) {
+    document.getElementById('stats-body').innerHTML =
+      '<tr><td colspan="9" class="loading-cell" style="color:#c0392b">Could not load stats.json — make sure the file is in the data/ folder.</td></tr>';
+  }
+}
+
+function populateTournamentFilter() {
+  const sel = document.getElementById('tournament-filter');
+  allData.tournaments.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+}
+
+function getFilteredGames() {
+  const tFilter = document.getElementById('tournament-filter').value;
+  let games = [];
+  allData.tournaments.forEach(t => {
+    if (tFilter === 'all' || tFilter === t.id) {
+      t.games.forEach(g => games.push({ ...g, tournamentName: t.name }));
+    }
+  });
+  return games;
+}
+
+function calcStats(posFilter) {
+  const games = getFilteredGames();
+  const map = {};
+  allData.players.forEach(p => {
+    map[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, points: 0 };
+  });
+  games.forEach(g => {
+    g.stats.forEach(s => {
+      if (!map[s.player_id]) return;
+      map[s.player_id].gp++;
+      map[s.player_id].goals     += s.goals    || 0;
+      map[s.player_id].assists   += s.assists  || 0;
+      map[s.player_id].ps_goals  += s.ps_goals || 0;
+      map[s.player_id].pim       += s.pim      || 0;
+    });
+  });
+  Object.values(map).forEach(p => p.points = p.goals + p.assists);
+  let rows = Object.values(map);
+  if (posFilter !== 'all') rows = rows.filter(p => p.position === posFilter);
+  return rows;
+}
+
+function render() {
+  const posFilter = document.getElementById('position-filter').value;
+  let rows = calcStats(posFilter);
+  rows.sort((a, b) => {
+    const av = a[sortCol] ?? 0, bv = b[sortCol] ?? 0;
+    if (bv !== av) return sortDir === 'desc' ? bv - av : av - bv;
+    return b.points - a.points;
+  });
+
+  // Record badge
+  const games = getFilteredGames();
+  let w = 0, l = 0, t = 0;
+  games.forEach(g => {
+    if (g.falcons_score > g.opponent_score) w++;
+    else if (g.falcons_score < g.opponent_score) l++;
+    else t++;
+  });
+  document.getElementById('record-badge').textContent = `Record: ${w}–${l}–${t}`;
+
+  const tbody = document.getElementById('stats-body');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No players found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((p, i) => {
+    const isTop = i === 0 && p.points > 0;
+    return `<tr class="${isTop ? 'row-top' : ''}">
+      <td class="col-rank">${i + 1}</td>
+      <td class="col-player">
+        <span class="player-num">#${p.number}</span>
+        <span class="player-name">${p.name}</span>
+      </td>
+      <td class="col-pos"><span class="pos-badge pos-${p.position}">${p.position}</span></td>
+      <td class="col-stat">${p.gp}</td>
+      <td class="col-stat">${p.goals}</td>
+      <td class="col-stat">${p.assists}</td>
+      <td class="col-stat col-pts">${p.points}</td>
+      <td class="col-stat">${p.ps_goals}</td>
+      <td class="col-stat">${p.pim}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderGameLog() {
+  const games = getFilteredGames().slice().reverse().slice(0, 10);
+  const el = document.getElementById('game-log');
+  if (!games.length) { el.innerHTML = '<p class="no-games">No games logged yet.</p>'; return; }
+  el.innerHTML = games.map(g => {
+    const result = g.falcons_score > g.opponent_score ? 'W' :
+                   g.falcons_score < g.opponent_score ? 'L' : 'T';
+    const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
+    return `<div class="game-card">
+      <span class="result-badge ${cls}">${result}</span>
+      <div class="game-info">
+        <span class="game-opponent">vs ${g.opponent}</span>
+        <span class="game-score">${g.falcons_score}–${g.opponent_score}</span>
+      </div>
+      <span class="game-tournament">${g.tournamentName}</span>
+      <span class="game-date">${formatDate(g.date)}</span>
+    </div>`;
+  }).join('');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+document.getElementById('tournament-filter').addEventListener('change', () => { render(); renderGameLog(); });
+document.getElementById('position-filter').addEventListener('change', render);
+
+document.querySelectorAll('.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+    else { sortCol = col; sortDir = 'desc'; }
+    document.querySelectorAll('.sortable').forEach(h => h.classList.remove('active-sort'));
+    th.classList.add('active-sort');
+    render();
+  });
+});
+
+loadData();
+</script>
 </body>
 </html>
