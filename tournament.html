@@ -81,7 +81,7 @@ function renderTournaments(data) {
     t.games.forEach(g => {
       g.stats.forEach(s => {
         if (!playerMap[s.player_id]) return;
-        playerMap[s.player_id].gp++;
+        playerMap[s.player_id].gp++; 
         playerMap[s.player_id].goals    += s.goals    || 0;
         playerMap[s.player_id].assists  += s.assists  || 0;
         playerMap[s.player_id].ps_goals += s.ps_goals || 0;

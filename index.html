@@ -139,12 +139,11 @@ function calcStats(posFilter) {
   const games = getFilteredGames();
   const map = {};
   allData.players.forEach(p => {
-    map[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, points: 0 };
+    map[p.id] = { ...p, gp: p.gp_override || 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, points: 0 };
   });
   games.forEach(g => {
     g.stats.forEach(s => {
       if (!map[s.player_id]) return;
-      map[s.player_id].gp++;
       map[s.player_id].goals     += s.goals    || 0;
       map[s.player_id].assists   += s.assists  || 0;
       map[s.player_id].ps_goals  += s.ps_goals || 0;
