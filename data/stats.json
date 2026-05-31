@@ -1,1 +1,64 @@
-{}
+{
+  "team": "Falcons",
+  "season": "2025-26",
+  "players": [
+    { "id": 1, "name": "Player One",   "number": 1,  "position": "F" },
+    { "id": 2, "name": "Player Two",   "number": 2,  "position": "F" },
+    { "id": 3, "name": "Player Three", "number": 3,  "position": "F" },
+    { "id": 4, "name": "Player Four",  "number": 4,  "position": "F" },
+    { "id": 5, "name": "Player Five",  "number": 5,  "position": "D" },
+    { "id": 6, "name": "Player Six",   "number": 6,  "position": "D" },
+    { "id": 7, "name": "Player Seven", "number": 7,  "position": "D" },
+    { "id": 8, "name": "Player Eight", "number": 8,  "position": "D" },
+    { "id": 9, "name": "Player Nine",  "number": 9,  "position": "G" },
+    { "id": 10,"name": "Player Ten",   "number": 10, "position": "G" }
+  ],
+  "tournaments": [
+    {
+      "id": "t1",
+      "name": "Winter Showcase",
+      "date": "2026-01-10",
+      "location": "Pittsburgh, PA",
+      "games": [
+        {
+          "id": "g1",
+          "opponent": "Eagles",
+          "falcons_score": 4,
+          "opponent_score": 2,
+          "date": "2026-01-10",
+          "stats": [
+            { "player_id": 1,  "goals": 2, "assists": 1, "pim": 0, "ps_goals": 0 },
+            { "player_id": 2,  "goals": 1, "assists": 1, "pim": 2, "ps_goals": 0 },
+            { "player_id": 3,  "goals": 1, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 4,  "goals": 0, "assists": 2, "pim": 0, "ps_goals": 0 },
+            { "player_id": 5,  "goals": 0, "assists": 1, "pim": 0, "ps_goals": 0 },
+            { "player_id": 6,  "goals": 0, "assists": 0, "pim": 2, "ps_goals": 0 },
+            { "player_id": 7,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 8,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 9,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 10, "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 }
+          ]
+        },
+        {
+          "id": "g2",
+          "opponent": "Hawks",
+          "falcons_score": 3,
+          "opponent_score": 3,
+          "date": "2026-01-11",
+          "stats": [
+            { "player_id": 1,  "goals": 1, "assists": 0, "pim": 0, "ps_goals": 1 },
+            { "player_id": 2,  "goals": 0, "assists": 2, "pim": 0, "ps_goals": 0 },
+            { "player_id": 3,  "goals": 1, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 4,  "goals": 0, "assists": 1, "pim": 2, "ps_goals": 0 },
+            { "player_id": 5,  "goals": 1, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 6,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 7,  "goals": 0, "assists": 1, "pim": 0, "ps_goals": 0 },
+            { "player_id": 8,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 9,  "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 },
+            { "player_id": 10, "goals": 0, "assists": 0, "pim": 0, "ps_goals": 0 }
+          ]
+        }
+      ]
+    }
+  ]
+}
