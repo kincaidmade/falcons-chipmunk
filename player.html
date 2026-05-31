@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Player Profile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3 L33 18 L18 33 L3 18 Z" fill="#1565C0" opacity="0.15"/>
+          <path d="M6 14 Q18 2 30 14 Q26 22 18 28 Q10 22 6 14Z" fill="#1565C0"/>
+          <path d="M14 16 Q18 11 22 16 Q20 20 18 22 Q16 20 14 16Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2025–26 Season</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="tournament.html" class="nav-link">Tournaments</a>
+      <a href="game-entry.html" class="nav-link nav-entry">+ Add Game</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+  <a href="index.html" class="back-link">← Back to leaderboard</a>
+  <div id="profile-content"><p class="loading-cell">Loading player…</p></div>
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+  <span>·</span>
+  <a href="index.html">Leaderboard</a>
+</footer>
+
+<script>
+async function loadData() {
+  const params = new URLSearchParams(window.location.search);
+  const playerId = parseInt(params.get('id'));
+
+  let data;
+  try {
+    const res = await fetch('data/stats.json');
+    data = await res.json();
+  } catch(e) {
+    document.getElementById('profile-content').innerHTML =
+      '<p class="loading-cell" style="color:#c0392b">Could not load stats.json.</p>';
+    return;
+  }
+
+  document.getElementById('season-label').textContent = (data.season || '') + ' Season';
+
+  const player = data.players.find(p => p.id === playerId);
+  if (!player) {
+    document.getElementById('profile-content').innerHTML =
+      '<p class="loading-cell">Player not found. <a href="index.html">Back to leaderboard</a></p>';
+    return;
+  }
+
+  // Build game-by-game log
+  const gamelog = [];
+  data.tournaments.forEach(t => {
+    t.games.forEach(g => {
+      const stat = g.stats.find(s => s.player_id === playerId);
+      if (stat) {
+        gamelog.push({
+          date: g.date,
+          opponent: g.opponent,
+          falcons_score: g.falcons_score,
+          opponent_score: g.opponent_score,
+          tournament: t.name,
+          goals: stat.goals || 0,
+          assists: stat.assists || 0,
+          ps_goals: stat.ps_goals || 0,
+          pim: stat.pim || 0,
+          points: (stat.goals || 0) + (stat.assists || 0)
+        });
+      }
+    });
+  });
+
+  // Season totals
+  const gp    = player.gp_override || 0;
+  const goals = gamelog.reduce((s, g) => s + g.goals, 0);
+  const assists = gamelog.reduce((s, g) => s + g.assists, 0);
+  const points  = goals + assists;
+  const ps_goals = gamelog.reduce((s, g) => s + g.ps_goals, 0);
+  const pim     = gamelog.reduce((s, g) => s + g.pim, 0);
+  const gpg     = gp > 0 ? (goals / gp).toFixed(2) : '—';
+  const apg     = gp > 0 ? (assists / gp).toFixed(2) : '—';
+  const ppg     = gp > 0 ? (points / gp).toFixed(2) : '—';
+
+  // Season rank
+  const allTotals = data.players.map(p => {
+    let g = 0, a = 0;
+    data.tournaments.forEach(t => t.games.forEach(game => {
+      const s = game.stats.find(s => s.player_id === p.id);
+      if (s) { g += s.goals || 0; a += s.assists || 0; }
+    }));
+    return { id: p.id, pts: g + a };
+  }).sort((a, b) => b.pts - a.pts);
+  const rank = allTotals.findIndex(p => p.id === playerId) + 1;
+
+  // Tournament breakdown
+  const byTournament = {};
+  data.tournaments.forEach(t => {
+    let tg = 0, ta = 0, tps = 0, tpim = 0, tgames = 0;
+    t.games.forEach(g => {
+      const s = g.stats.find(s => s.player_id === playerId);
+      if (s) {
+        tgames++;
+        tg   += s.goals    || 0;
+        ta   += s.assists  || 0;
+        tps  += s.ps_goals || 0;
+        tpim += s.pim      || 0;
+      }
+    });
+    if (tgames > 0 || t.games.length > 0) {
+      byTournament[t.id] = { name: t.name, gp: tgames, goals: tg, assists: ta, ps_goals: tps, pim: tpim, points: tg + ta };
+    }
+  });
+
+  const gamelogRows = gamelog.map(g => {
+    const result = g.falcons_score > g.opponent_score ? 'W' :
+                   g.falcons_score < g.opponent_score ? 'L' : 'T';
+    const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
+    return `<tr>
+      <td>${formatDate(g.date)}</td>
+      <td><span class="result-badge ${cls}" style="display:inline-flex;width:22px;height:22px;font-size:12px;border-radius:4px">${result}</span></td>
+      <td class="col-player" style="text-align:left">vs ${g.opponent}</td>
+      <td class="col-stat">${g.goals}</td>
+      <td class="col-stat">${g.assists}</td>
+      <td class="col-stat col-pts">${g.points}</td>
+      <td class="col-stat">${g.ps_goals}</td>
+      <td class="col-stat">${g.pim}</td>
+      <td style="font-size:12px;color:var(--gray-400);white-space:nowrap">${g.tournament}</td>
+    </tr>`;
+  }).join('');
+
+  const tournamentRows = Object.values(byTournament).map(t => `
+    <tr>
+      <td class="col-player" style="text-align:left;font-weight:500">${t.name}</td>
+      <td class="col-stat">${t.gp}</td>
+      <td class="col-stat">${t.goals}</td>
+      <td class="col-stat">${t.assists}</td>
+      <td class="col-stat col-pts">${t.points}</td>
+      <td class="col-stat">${t.ps_goals}</td>
+      <td class="col-stat">${t.pim}</td>
+    </tr>`).join('');
+
+  document.title = `${player.name} — Falcons Hockey`;
+
+  document.getElementById('profile-content').innerHTML = `
+
+    <div class="profile-hero">
+      <div class="profile-jersey">
+        <div class="jersey-number">${player.number}</div>
+        <div class="jersey-label">FALCONS</div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">${player.name}</div>
+        <div class="profile-meta">
+          <span class="pos-badge pos-${player.position}" style="font-size:13px;padding:3px 10px">${player.position}</span>
+          <span class="profile-rank">Season rank: <strong>#${rank}</strong></span>
+        </div>
+        <div class="profile-stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-val">${gp}</div>
+            <div class="stat-pill-label">GP</div>
+          </div>
+          <div class="stat-pill stat-pill-blue">
+            <div class="stat-pill-val">${goals}</div>
+            <div class="stat-pill-label">G</div>
+          </div>
+          <div class="stat-pill stat-pill-blue">
+            <div class="stat-pill-val">${assists}</div>
+            <div class="stat-pill-label">A</div>
+          </div>
+          <div class="stat-pill stat-pill-dark">
+            <div class="stat-pill-val">${points}</div>
+            <div class="stat-pill-label">PTS</div>
+          </div>
+          ${ps_goals > 0 ? `<div class="stat-pill"><div class="stat-pill-val">${ps_goals}</div><div class="stat-pill-label">PS</div></div>` : ''}
+          ${pim > 0 ? `<div class="stat-pill"><div class="stat-pill-val">${pim}</div><div class="stat-pill-label">PIM</div></div>` : ''}
+        </div>
+        <div class="profile-rates">
+          <span>${gpg} G/GP</span>
+          <span>${apg} A/GP</span>
+          <span>${ppg} PTS/GP</span>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:28px">By tournament</h2>
+    <div class="table-wrap">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th class="col-player" style="text-align:left">Tournament</th>
+            <th class="col-stat">GP</th>
+            <th class="col-stat">G</th>
+            <th class="col-stat">A</th>
+            <th class="col-stat">PTS</th>
+            <th class="col-stat">PS</th>
+            <th class="col-stat">PIM</th>
+          </tr>
+        </thead>
+        <tbody>${tournamentRows}</tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title" style="margin-top:28px">Game log</h2>
+    ${gamelog.length === 0
+      ? '<p class="no-games">No games logged yet.</p>'
+      : `<div class="table-wrap">
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding-left:12px">Date</th>
+                <th></th>
+                <th class="col-player" style="text-align:left">Opponent</th>
+                <th class="col-stat">G</th>
+                <th class="col-stat">A</th>
+                <th class="col-stat">PTS</th>
+                <th class="col-stat">PS</th>
+                <th class="col-stat">PIM</th>
+                <th style="text-align:left">Tournament</th>
+              </tr>
+            </thead>
+            <tbody>${gamelogRows}</tbody>
+          </table>
+        </div>`
+    }
+  `;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+loadData();
+</script>
+</body>
+</html>
