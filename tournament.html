@@ -22,7 +22,6 @@
     <nav class="site-nav">
       <a href="index.html" class="nav-link">Leaderboard</a>
       <a href="tournament.html" class="nav-link active">Tournaments</a>
-      <a href="game-entry.html" class="nav-link nav-entry">+ Add Game</a>
     </nav>
   </div>
 </header>
@@ -35,8 +34,6 @@
 
 <footer class="site-footer">
   <span>Falcons Hockey</span>
-  <span>·</span>
-  <a href="game-entry.html">Add a game</a>
 </footer>
 
 <script>
@@ -55,7 +52,7 @@ async function loadData() {
 function renderTournaments(data) {
   const el = document.getElementById('tournaments-container');
   if (!data.tournaments.length) {
-    el.innerHTML = '<p class="no-games">No tournaments yet. <a href="game-entry.html">Add the first game.</a></p>';
+    el.innerHTML = '<p class="no-games">No tournaments yet.</p>';
     return;
   }
 
