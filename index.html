@@ -164,58 +164,93 @@ function renderSummaryCard() {
     else tie++;
   });
 
-  // Leading scorer
   const totals = {};
-  allData.players.forEach(p => { totals[p.id] = { name: p.name, number: p.number, g: 0, a: 0 }; });
+  allData.players.forEach(p => { totals[p.id] = { name: p.name, number: p.number, id: p.id, g: 0, a: 0 }; });
   allGames.forEach(g => g.stats.forEach(s => {
     if (!totals[s.player_id]) return;
     totals[s.player_id].g += s.goals || 0;
     totals[s.player_id].a += s.assists || 0;
   }));
   const sorted = Object.values(totals).map(p => ({ ...p, pts: p.g + p.a })).sort((a, b) => b.pts - a.pts);
-  const leader = sorted[0];
-  const topScorer = leader && leader.pts > 0 ? `#${leader.number} ${leader.name} (${leader.pts} pts)` : '—';
+  const leader   = sorted[0];
+  const topGoals = [...sorted].sort((a,b) => b.g - a.g)[0];
+  const topAssts = [...sorted].sort((a,b) => b.a - a.a)[0];
 
-  // Top goals
-  const topGoals = [...Object.values(totals)].sort((a,b) => b.g - a.g)[0];
-  const topGoalStr = topGoals && topGoals.g > 0 ? `#${topGoals.number} ${topGoals.name} (${topGoals.g})` : '—';
-
-  // Tournaments played
   const tourneysPlayed = allData.tournaments.filter(t => t.games.length > 0).length;
   const tourneysTotal  = allData.tournaments.length;
-
+  const pct = tourneysTotal > 0 ? Math.round((tourneysPlayed / tourneysTotal) * 100) : 0;
   const winPct = (w + l + tie) > 0 ? Math.round((w / (w + l + tie)) * 100) : 0;
+  const diff = gf - ga;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+  const diffColor = diff >= 0 ? 'var(--navy-dark)' : '#791F1F';
 
   document.getElementById('summary-card').innerHTML = `
-    <div class="summary-grid">
-      <div class="summary-block summary-block-main">
-        <div class="summary-record">${w}–${l}–${tie}</div>
-        <div class="summary-record-label">Season record</div>
-        <div class="summary-win-pct">${winPct}% win rate</div>
+    <div class="sc-card">
+      <div class="sc-header">
+        <div class="sc-logo-wrap">
+          <img src="FalconsLogo.png" alt="Falcons" style="height:44px;width:44px;object-fit:contain;">
+        </div>
+        <div class="sc-header-info">
+          <div class="sc-team">Falcons</div>
+          <div class="sc-season">${allData.season || ''} Season · Bill's Dek Hockey</div>
+        </div>
+        <div class="sc-record-block">
+          <div class="sc-record">${w}–${l}–${tie}</div>
+          <div class="sc-record-sub">${winPct}% win rate</div>
+        </div>
       </div>
-      <div class="summary-block">
-        <div class="summary-val">${gf}</div>
-        <div class="summary-label">Goals for</div>
+
+      <div class="sc-stats-row">
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🥅</div>
+          <div class="sc-stat-val">${gf}</div>
+          <div class="sc-stat-label">Goals for</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🚫</div>
+          <div class="sc-stat-val">${ga}</div>
+          <div class="sc-stat-label">Goals against</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">📊</div>
+          <div class="sc-stat-val" style="color:${diffColor}">${diffStr}</div>
+          <div class="sc-stat-label">Goal diff</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🏒</div>
+          <div class="sc-stat-val">${allGames.length}</div>
+          <div class="sc-stat-label">Games played</div>
+        </div>
       </div>
-      <div class="summary-block">
-        <div class="summary-val">${ga}</div>
-        <div class="summary-label">Goals against</div>
-      </div>
-      <div class="summary-block">
-        <div class="summary-val">${gf - ga > 0 ? '+' : ''}${gf - ga}</div>
-        <div class="summary-label">Goal diff</div>
-      </div>
-      <div class="summary-block summary-block-wide">
-        <div class="summary-label">Leading scorer</div>
-        <div class="summary-name">${topScorer}</div>
-      </div>
-      <div class="summary-block summary-block-wide">
-        <div class="summary-label">Top goal scorer</div>
-        <div class="summary-name">${topGoalStr}</div>
-      </div>
-      <div class="summary-block">
-        <div class="summary-val">${tourneysPlayed}<span style="font-size:14px;color:var(--gray-400)">/${tourneysTotal}</span></div>
-        <div class="summary-label">Tournaments</div>
+
+      <div class="sc-leaders-row">
+        <a href="player.html?id=${leader?.id}" class="sc-leader-card sc-leader-link">
+          <div class="sc-leader-label">⭐ Leading scorer</div>
+          <div class="sc-leader-name">${leader?.name || '—'}</div>
+          <div class="sc-leader-stats">
+            <span class="sc-jersey">#${leader?.number}</span>
+            <span>${leader?.pts || 0} pts · ${leader?.g || 0}G ${leader?.a || 0}A</span>
+          </div>
+        </a>
+        <a href="player.html?id=${topGoals?.id}" class="sc-leader-card sc-leader-link">
+          <div class="sc-leader-label">🔥 Top goal scorer</div>
+          <div class="sc-leader-name">${topGoals?.name || '—'}</div>
+          <div class="sc-leader-stats">
+            <span class="sc-jersey">#${topGoals?.number}</span>
+            <span>${topGoals?.g || 0} goals this season</span>
+          </div>
+        </a>
+        <div class="sc-leader-card">
+          <div class="sc-leader-label">📅 Tournaments</div>
+          <div class="sc-leader-name">${tourneysPlayed} of ${tourneysTotal} played</div>
+          <div class="sc-progress-wrap">
+            <div class="sc-progress-bar" style="width:${pct}%"></div>
+          </div>
+          <div class="sc-leader-stats">${tourneysTotal - tourneysPlayed} remaining</div>
+        </div>
       </div>
     </div>
   `;
