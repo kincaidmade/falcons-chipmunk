@@ -126,7 +126,10 @@ function renderTournaments(data) {
     <section class="tournament-section">
       <div class="tournament-header">
         <div class="tournament-title-block">
-          <h2 class="tournament-name">${t.name}</h2>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <h2 class="tournament-name">${t.name}</h2>
+            ${t.result ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}">${t.result}</span>` : ''}
+          </div>
           <div class="tournament-meta">${formatDate(t.date)} · ${t.location || ''}</div>
         </div>
         <div class="tournament-record">

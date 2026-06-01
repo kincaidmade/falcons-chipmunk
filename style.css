@@ -472,6 +472,27 @@ body {
 .site-footer a { color: var(--blue); text-decoration: none; }
 .site-footer a:hover { text-decoration: underline; }
 
+.tournament-result-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-champion {
+  background: #FEF9E7;
+  color: #B7770D;
+  border: 1px solid #F5CBA7;
+}
+.badge-finalist {
+  background: #E8F4FD;
+  color: #1565C0;
+  border: 1px solid #AED6F1;
+}
+
 /* ── Season summary card ── */
 .summary-card { margin-bottom: 24px; }
 .summary-grid {
