@@ -16,7 +16,7 @@
       </div>
       <div>
         <div class="team-name">Falcons</div>
-        <div class="season-label" id="season-label">2025–26 Season</div>
+        <div class="season-label" id="season-label">2026</div>
       </div>
     </div>
     <nav class="site-nav">
@@ -206,7 +206,7 @@ async function loadData() {
 
     <h2 class="section-title" style="margin-top:32px">Photos</h2>
     <div class="photos-how-to">
-      <strong>Adding photos:</strong> Upload images to <code>photos/${t.id}/</code> in your GitHub repo, then use the <a href="photo-helper.html" style="color:var(--navy);font-weight:500;">Photo Helper</a> to generate and paste the updated <code>photos/${t.id}/photos.json</code> — no manual JSON editing needed.
+      <strong>Adding photos:</strong> Upload images to <code>photos/${t.id}/</code> in your GitHub repo, then update <code>photos/${t.id}/photos.json</code> with your image filenames as a JSON array, e.g. <code>["game1.jpg","team.jpg"]</code>
     </div>
     ${photoGrid}
   `;
