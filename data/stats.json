@@ -1,6 +1,6 @@
 {
   "team": "Falcons",
-  "season": "2025-26",
+  "season": "2026",
   "players": [
     {
       "id": 1,
@@ -857,7 +857,7 @@
               "goals": 1,
               "assists": 1,
               "pim": 0,
-              "ps_goals": 0
+              "ps_goals": 1
             },
             {
               "player_id": 27,
