@@ -101,7 +101,7 @@ async function loadData() {
     .sort((a, b) => b.points - a.points || b.goals - a.goals);
 
   const resultBadge = t.result
-    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}">${t.result}</span>`
+    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : t.result.toLowerCase().includes('finalist') ? 'badge-finalist' : 'badge-finalist'}">${t.result}</span>`
     : '';
 
   const isUpcoming = t.games.length === 0;
@@ -206,7 +206,7 @@ async function loadData() {
 
     <h2 class="section-title" style="margin-top:32px">Photos</h2>
     <div class="photos-how-to">
-      <strong>Adding photos:</strong> Upload images to <code>photos/${t.id}/</code> in your GitHub repo, then add each filename to <code>photos/${t.id}/photos.json</code> as a JSON array, e.g. <code>["game1.jpg","team.jpg"]</code>
+      <strong>Adding photos:</strong> Upload images to <code>photos/${t.id}/</code> in your GitHub repo, then use the <a href="photo-helper.html" style="color:var(--navy);font-weight:500;">Photo Helper</a> to generate and paste the updated <code>photos/${t.id}/photos.json</code> — no manual JSON editing needed.
     </div>
     ${photoGrid}
   `;

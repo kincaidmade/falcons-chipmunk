@@ -97,7 +97,7 @@ function tournamentCard(t, data) {
 
   const isUpcoming = t.games.length === 0;
   const resultBadge = t.result
-    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}" style="font-size:11px">${t.result}</span>`
+    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : t.result.toLowerCase().includes('finalist') ? 'badge-finalist' : 'badge-finalist'}" style="font-size:11px">${t.result}</span>`
     : '';
 
   return `

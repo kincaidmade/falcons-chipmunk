@@ -483,14 +483,14 @@ body {
   white-space: nowrap;
 }
 .badge-champion {
-  background: #FEF9E7;
-  color: #0ee824;
-  border: 1px solid #F5CBA7;
+  background: #E9F7EF;
+  color: #1B6B3A;
+  border: 1px solid #A9DFBF;
 }
 .badge-finalist {
-  background: #E8F4FD;
-  color: #0ee824;
-  border: 1px solid #AED6F1;
+  background: #E9F7EF;
+  color: #1B6B3A;
+  border: 1px solid #A9DFBF;
 }
 
 /* ── Season summary card ── */
@@ -936,4 +936,59 @@ body {
   margin-top: 14px;
   font-size: 13px;
   color: rgba(255,255,255,0.5);
+}
+
+/* ── Photo helper ── */
+.ph-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+@media (max-width: 700px) { .ph-layout { grid-template-columns: 1fr; } }
+.ph-col { display: flex; flex-direction: column; gap: 0; }
+.ph-textarea {
+  font-family: monospace;
+  font-size: 13px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  resize: vertical;
+  outline: none;
+  color: var(--gray-900);
+  background: var(--white);
+  line-height: 1.6;
+  transition: border-color 0.15s;
+}
+.ph-textarea:focus { border-color: var(--navy); }
+.ph-output-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.ph-preview { margin-top: 16px; }
+.ph-preview-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--gray-600);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.ph-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.ph-preview-cell {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 10px 8px;
+  text-align: center;
+}
+.ph-preview-icon { font-size: 20px; margin-bottom: 4px; }
+.ph-preview-name {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--gray-600);
+  word-break: break-all;
+  line-height: 1.4;
 }
