@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Tournament</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <img src="FalconsLogo.png" alt="Falcons logo" style="height:52px;width:52px;object-fit:contain;">
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2025–26 Season</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="tournament.html" class="nav-link active">Tournaments</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+  <a href="tournament.html" class="back-link">← Back to tournaments</a>
+  <div id="detail-content"><p class="loading-cell">Loading tournament…</p></div>
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+</footer>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
+  <button class="lb-prev" id="lb-prev" aria-label="Previous photo">‹</button>
+  <button class="lb-next" id="lb-next" aria-label="Next photo">›</button>
+  <img class="lb-img" id="lb-img" src="" alt="Tournament photo">
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<script>
+let lightboxPhotos = [];
+let lightboxIndex = 0;
+
+async function loadData() {
+  const params = new URLSearchParams(window.location.search);
+  const tid = params.get('t');
+
+  let data;
+  try {
+    const res = await fetch('data/stats.json');
+    data = await res.json();
+  } catch(e) {
+    document.getElementById('detail-content').innerHTML =
+      '<p class="loading-cell" style="color:#c0392b">Could not load stats.json.</p>';
+    return;
+  }
+
+  document.getElementById('season-label').textContent = (data.season || '') + ' Season';
+
+  const t = data.tournaments.find(t => t.id === tid);
+  if (!t) {
+    document.getElementById('detail-content').innerHTML =
+      '<p class="loading-cell">Tournament not found. <a href="tournament.html">Back to tournaments</a></p>';
+    return;
+  }
+
+  document.title = `${t.name} — Falcons Hockey`;
+
+  // Stats
+  let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
+  t.games.forEach(g => {
+    gf += g.falcons_score; ga += g.opponent_score;
+    if (g.falcons_score > g.opponent_score) w++;
+    else if (g.falcons_score < g.opponent_score) l++;
+    else tie++;
+  });
+
+  const playerMap = {};
+  data.players.forEach(p => {
+    playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0 };
+  });
+  t.games.forEach(g => {
+    g.stats.forEach(s => {
+      if (!playerMap[s.player_id]) return;
+      playerMap[s.player_id].gp++;
+      playerMap[s.player_id].goals    += s.goals    || 0;
+      playerMap[s.player_id].assists  += s.assists  || 0;
+      playerMap[s.player_id].ps_goals += s.ps_goals || 0;
+      playerMap[s.player_id].pim      += s.pim      || 0;
+    });
+  });
+  const players = Object.values(playerMap)
+    .map(p => ({ ...p, points: p.goals + p.assists }))
+    .sort((a, b) => b.points - a.points || b.goals - a.goals);
+
+  const resultBadge = t.result
+    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}">${t.result}</span>`
+    : '';
+
+  const isUpcoming = t.games.length === 0;
+
+  const gameRows = t.games.map(g => {
+    const result = g.falcons_score > g.opponent_score ? 'W' :
+                   g.falcons_score < g.opponent_score ? 'L' : 'T';
+    const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
+    return `<div class="game-card">
+      <span class="result-badge ${cls}">${result}</span>
+      <div class="game-info">
+        <span class="game-opponent">vs ${g.opponent}</span>
+        <span class="game-score">${g.falcons_score}–${g.opponent_score}</span>
+      </div>
+      <span class="game-date">${formatDate(g.date)}</span>
+    </div>`;
+  }).join('');
+
+  const playerRows = players.map((p, i) => `
+    <tr>
+      <td class="col-rank">${i + 1}</td>
+      <td class="col-player">
+        <span class="player-num">#${p.number}</span>
+        <a class="player-name player-link" href="player.html?id=${p.id}">${p.name}</a>
+      </td>
+      <td class="col-pos"><span class="pos-badge pos-${p.position}">${p.position}</span></td>
+      <td class="col-stat">${p.gp}</td>
+      <td class="col-stat">${p.goals}</td>
+      <td class="col-stat">${p.assists}</td>
+      <td class="col-stat col-pts">${p.points}</td>
+      <td class="col-stat">${p.ps_goals}</td>
+      <td class="col-stat">${p.pim}</td>
+    </tr>`).join('');
+
+  // Load photos
+  let photos = [];
+  try {
+    const pr = await fetch(`photos/${t.id}/photos.json`);
+    if (pr.ok) photos = await pr.json();
+  } catch(e) { photos = []; }
+
+  lightboxPhotos = photos.map(f => `photos/${t.id}/${f}`);
+
+  const photoGrid = photos.length > 0
+    ? `<div class="photo-grid">
+        ${photos.map((f, i) => `
+          <div class="photo-cell" onclick="openLightbox(${i})">
+            <img src="photos/${t.id}/${f}" alt="Tournament photo ${i+1}" loading="lazy">
+          </div>`).join('')}
+      </div>`
+    : `<div class="no-photos">
+        <div class="no-photos-icon">📷</div>
+        <div class="no-photos-text">No photos yet</div>
+        <div class="no-photos-sub">Upload images to <code>photos/${t.id}/</code> on GitHub and add filenames to <code>photos/${t.id}/photos.json</code></div>
+      </div>`;
+
+  document.getElementById('detail-content').innerHTML = `
+
+    <div class="td-hero">
+      <div class="td-hero-info">
+        <div class="td-title-row">
+          <h1 class="td-name">${t.name}</h1>
+          ${resultBadge}
+        </div>
+        <div class="td-meta">${formatDate(t.date)}${t.location ? ' · ' + t.location : ''}</div>
+      </div>
+      ${!isUpcoming ? `
+      <div class="td-record-block">
+        <div class="td-record">${w}–${l}–${tie}</div>
+        <div class="td-record-sub">GF ${gf} · GA ${ga}</div>
+      </div>` : `
+      <div class="td-upcoming-badge">Upcoming</div>`}
+    </div>
+
+    ${!isUpcoming ? `
+    <h2 class="section-title">Games</h2>
+    <div class="game-log-mini">${gameRows}</div>
+
+    <h2 class="section-title" style="margin-top:28px">Player stats</h2>
+    <div class="table-wrap">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-player">Player</th>
+            <th class="col-pos">Pos</th>
+            <th class="col-stat">GP</th>
+            <th class="col-stat">G</th>
+            <th class="col-stat">A</th>
+            <th class="col-stat">PTS</th>
+            <th class="col-stat">PS</th>
+            <th class="col-stat">PIM</th>
+          </tr>
+        </thead>
+        <tbody>${playerRows}</tbody>
+      </table>
+    </div>` : `
+    <div class="upcoming-card">
+      <div class="upcoming-icon">🗓</div>
+      <div class="upcoming-text">This tournament hasn't been played yet. Stats will appear here once games are logged.</div>
+    </div>`}
+
+    <h2 class="section-title" style="margin-top:32px">Photos</h2>
+    <div class="photos-how-to">
+      <strong>Adding photos:</strong> Upload images to <code>photos/${t.id}/</code> in your GitHub repo, then add each filename to <code>photos/${t.id}/photos.json</code> as a JSON array, e.g. <code>["game1.jpg","team.jpg"]</code>
+    </div>
+    ${photoGrid}
+  `;
+}
+
+function openLightbox(index) {
+  lightboxIndex = index;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function updateLightbox() {
+  document.getElementById('lb-img').src = lightboxPhotos[lightboxIndex];
+  document.getElementById('lb-counter').textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+  document.getElementById('lb-prev').style.display = lightboxIndex === 0 ? 'none' : 'flex';
+  document.getElementById('lb-next').style.display = lightboxIndex === lightboxPhotos.length - 1 ? 'none' : 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lb-prev').addEventListener('click', () => { lightboxIndex--; updateLightbox(); });
+document.getElementById('lb-next').addEventListener('click', () => { lightboxIndex++; updateLightbox(); });
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft' && lightboxIndex > 0) { lightboxIndex--; updateLightbox(); }
+  if (e.key === 'ArrowRight' && lightboxIndex < lightboxPhotos.length - 1) { lightboxIndex++; updateLightbox(); }
+});
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+loadData();
+</script>
+</body>
+</html>
