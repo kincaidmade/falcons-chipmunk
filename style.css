@@ -881,3 +881,60 @@ body {
   word-break: break-all;
   line-height: 1.4;
 }
+
+/* ── Share button ── */
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 8px 18px;
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.share-btn:hover { background: var(--navy-dark); transform: scale(1.03); }
+.share-btn:active { transform: scale(0.97); }
+
+/* ── Badge confetti shimmer ── */
+.badge-champion, .badge-finalist {
+  position: relative;
+  overflow: hidden;
+}
+.badge-champion::after, .badge-finalist::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.45) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: badge-shimmer 2.5s ease-in-out infinite;
+}
+@keyframes badge-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Counter animation rows ── */
+.stats-table tbody tr {
+  animation: row-fade-in 0.3s ease both;
+}
+.stats-table tbody tr:nth-child(1) { animation-delay: 0.03s; }
+.stats-table tbody tr:nth-child(2) { animation-delay: 0.06s; }
+.stats-table tbody tr:nth-child(3) { animation-delay: 0.09s; }
+.stats-table tbody tr:nth-child(4) { animation-delay: 0.12s; }
+.stats-table tbody tr:nth-child(5) { animation-delay: 0.15s; }
+.stats-table tbody tr:nth-child(6) { animation-delay: 0.18s; }
+.stats-table tbody tr:nth-child(7) { animation-delay: 0.21s; }
+.stats-table tbody tr:nth-child(8) { animation-delay: 0.24s; }
+.stats-table tbody tr:nth-child(9) { animation-delay: 0.27s; }
+.stats-table tbody tr:nth-child(10) { animation-delay: 0.30s; }
+@keyframes row-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

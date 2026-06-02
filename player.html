@@ -192,8 +192,12 @@ async function loadData() {
           <span>${apg} A/GP</span>
           <span>${ppg} PTS/GP</span>
         </div>
+        <button class="share-btn" id="share-btn" onclick="generateShareCard()">🏒 Share stat card</button>
       </div>
     </div>
+
+    <!-- Hidden share card template -->
+    <canvas id="share-canvas" style="display:none"></canvas>
 
     <h2 class="section-title" style="margin-top:28px">By tournament</h2>
     <div class="table-wrap">
@@ -242,6 +246,148 @@ function formatDate(d) {
   if (!d) return '';
   const dt = new Date(d + 'T12:00:00');
   return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function generateShareCard() {
+  const canvas = document.getElementById('share-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 800, H = 420;
+  canvas.width = W; canvas.height = H;
+
+  // Background
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#1E1B52');
+  grad.addColorStop(1, '#2E2B6E');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid pattern
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Jersey number circle
+  ctx.beginPath();
+  ctx.arc(130, H/2, 90, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.07)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Jersey number
+  const playerNum = document.querySelector('.jersey-number')?.textContent || '';
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 72px Barlow Condensed, Arial Narrow, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('#' + playerNum, 130, H/2 + 24);
+
+  // FALCONS label under number
+  ctx.font = '500 13px Barlow, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillText('FALCONS', 130, H/2 + 54);
+
+  // Player name
+  const name = document.querySelector('.profile-name')?.textContent || '';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 42px Barlow Condensed, Arial Narrow, sans-serif';
+  ctx.fillText(name, 250, 110);
+
+  // Position + rank
+  const rankText = document.querySelector('.profile-rank')?.textContent || '';
+  ctx.font = '400 16px Barlow, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillText(rankText, 250, 142);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(250, 160); ctx.lineTo(W - 40, 160); ctx.stroke();
+
+  // Stat blocks
+  const pills = document.querySelectorAll('.stat-pill');
+  const stats = [];
+  pills.forEach(p => {
+    const val = p.querySelector('.stat-pill-val')?.textContent;
+    const label = p.querySelector('.stat-pill-label')?.textContent;
+    if (val && label) stats.push({ val, label });
+  });
+
+  const blockW = 100, startX = 250, statY = 210;
+  stats.slice(0, 5).forEach((s, i) => {
+    const x = startX + i * (blockW + 10);
+    // Box
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    roundRect(ctx, x, statY, blockW, 90, 10);
+    ctx.fill();
+    // Value
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 38px Barlow Condensed, Arial Narrow, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.val, x + blockW/2, statY + 52);
+    // Label
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '500 12px Barlow, Arial, sans-serif';
+    ctx.fillText(s.label, x + blockW/2, statY + 74);
+  });
+
+  // Per-game rates
+  const rates = document.querySelector('.profile-rates')?.textContent || '';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '400 13px Barlow, Arial, sans-serif';
+  ctx.fillText(rates.trim().replace(/\s+/g,' '), 250, 340);
+
+  // Season label
+  const season = document.getElementById('season-label')?.textContent || '';
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '400 13px Barlow, Arial, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Bill\'s Dek Hockey · Falcons · ' + season, W - 30, H - 20);
+
+  // Download
+  const link = document.createElement('a');
+  link.download = `${name.replace(/\s+/g,'-')}-stats.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  // Confetti burst on the button
+  burstConfetti(document.getElementById('share-btn'));
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function burstConfetti(anchor) {
+  const colors = ['#2E2B6E','#ffffff','#A9DFBF','#F9E79F','#AED6F1'];
+  const rect = anchor.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  for (let i = 0; i < 36; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;width:8px;height:8px;border-radius:${Math.random()>0.5?'50%':'2px'};
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${cx}px;top:${cy}px;pointer-events:none;z-index:9999;`;
+    document.body.appendChild(el);
+    const angle = (Math.random() * 360) * Math.PI / 180;
+    const dist  = 60 + Math.random() * 120;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    el.animate([
+      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0) rotate(${Math.random()*360}deg)`, opacity: 0 }
+    ], { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(0,0,0.2,1)', fill: 'forwards' })
+      .onfinish = () => el.remove();
+  }
 }
 
 loadData();

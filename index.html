@@ -102,6 +102,7 @@ async function loadData() {
     document.getElementById('season-label').textContent = (allData.season || '') + ' Season';
     populateTournamentFilter();
     render();
+    animateCounters();
     renderSummaryCard();
     renderGameLog();
   } catch(e) {
@@ -317,6 +318,26 @@ function renderGameLog() {
       <span class="game-date">${formatDate(g.date)}</span>
     </div>`;
   }).join('');
+}
+
+function animateCounters() {
+  const els = document.querySelectorAll('.col-stat, .col-pts');
+  els.forEach(el => {
+    const val = parseInt(el.textContent);
+    if (isNaN(val) || val === 0) return;
+    let start = 0;
+    const duration = 600;
+    const startTime = performance.now();
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * val);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = val;
+    }
+    requestAnimationFrame(step);
+  });
 }
 
 function formatDate(d) {
