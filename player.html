@@ -312,7 +312,7 @@ function drawCard(cardData, logo, mode) {
 
   // Large number watermark
   ctx.save(); ctx.globalAlpha = 0.05; ctx.fillStyle = '#fff';
-  ctx.font = \`bold \${CW*0.75}px Arial Narrow, sans-serif\`;
+  ctx.font = 'bold ' + Math.round(CW*0.75) + 'px Arial Narrow, sans-serif';
   ctx.textAlign = 'center'; ctx.fillText('#'+number, CW/2, CH*0.58); ctx.restore();
 
   // Logo
@@ -333,7 +333,7 @@ function drawCard(cardData, logo, mode) {
 
   // Name
   const nameY = numY+56;
-  ctx.fillStyle = '#fff'; ctx.font = \`bold \${name.length>14?28:34}px Arial Narrow, sans-serif\`;
+  ctx.fillStyle = '#fff'; ctx.font = 'bold ' + (name.length>14?28:34) + 'px Arial Narrow, sans-serif';
   ctx.textAlign = 'center'; ctx.fillText(name.toUpperCase(), CW/2, nameY);
 
   // Position pill
@@ -360,7 +360,7 @@ function drawCard(cardData, logo, mode) {
     rrFill(ctx, gridX+i*cellW+3, gridY, cellW-6, cellH, 8);
     if (hi) { ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; rrStroke(ctx, gridX+i*cellW+3, gridY, cellW-6, cellH, 8); }
     ctx.fillStyle = hi?'#fff':'rgba(255,255,255,0.9)';
-    ctx.font = \`bold \${s.val>=10?28:32}px Arial Narrow, sans-serif\`; ctx.textAlign='center';
+    ctx.font = 'bold ' + (s.val>=10?28:32) + 'px Arial Narrow, sans-serif'; ctx.textAlign='center';
     ctx.fillText(String(s.val), cx, gridY+44);
     ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='500 10px Arial, sans-serif';
     ctx.fillText(s.label, cx, gridY+62);
