@@ -107,7 +107,7 @@ function tournamentCard(t, data) {
         <div class="tc-name">${t.name}</div>
         ${resultBadge}
       </div>
-      <div class="tc-meta">${formatDate(t.date)}${t.location ? ' · ' + t.location : ''}</div>
+      <div class="tc-meta">${formatDate(t.date)}${t.location ? ' · ' + t.location : ''}${countdown(t.date, isUpcoming)}</div>
     </div>
     ${isUpcoming
       ? `<div class="tc-upcoming">
@@ -136,6 +136,17 @@ function tournamentCard(t, data) {
       <span class="tc-view">View details & photos →</span>
     </div>
   </a>`;
+}
+
+function countdown(dateStr, isUpcoming) {
+  if (!isUpcoming) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr + 'T00:00:00');
+  const days = Math.round((target - today) / (1000*60*60*24));
+  if (days < 0) return '';
+  if (days === 0) return ' · <span class="tc-countdown tc-countdown-today">Today!</span>';
+  if (days === 1) return ' · <span class="tc-countdown">Tomorrow!</span>';
+  return ` · <span class="tc-countdown">${days} days away</span>`;
 }
 
 function formatDate(d) {

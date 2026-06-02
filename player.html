@@ -192,11 +192,18 @@ async function loadData() {
           <span>${apg} A/GP</span>
           <span>${ppg} PTS/GP</span>
         </div>
-        <button class="share-btn" id="share-btn" onclick="generateShareCard()">🏒 Share stat card</button>
+        <button class="share-btn" id="share-btn" onclick="generateShareCard()">🏒 Download hockey card</button>
       </div>
     </div>
 
-    <!-- Hidden share card template -->
+    <!-- Live hockey card preview -->
+    <h2 class="section-title" style="margin-top:28px">Hockey card</h2>
+    <div class="hc-preview-wrap">
+      <canvas id="hc-preview-canvas" class="hc-preview-canvas"></canvas>
+      <div class="hc-preview-hint">Click the card or use the button above to download</div>
+    </div>
+
+    <!-- Hidden full-res download canvas -->
     <canvas id="share-canvas" style="display:none"></canvas>
 
     <h2 class="section-title" style="margin-top:28px">By tournament</h2>
@@ -240,6 +247,11 @@ async function loadData() {
         </div>`
     }
   `;
+
+  // Render hockey card preview
+  renderHockeyCardPreview({ name, number: player.number, position: player.position,
+    rank, gp, goals, assists, points, ps_goals, pim, gpg, apg, ppg,
+    season: data.season || '2026' });
 }
 
 function formatDate(d) {
@@ -248,138 +260,148 @@ function formatDate(d) {
   return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+let _cardData = null;
+
 function generateShareCard() {
+  if (!_cardData) return;
   const logo = new Image();
+  logo.crossOrigin = 'anonymous';
   logo.src = 'FalconsLogo.png';
-  logo.onload = () => drawCard(logo);
-  logo.onerror = () => drawCard(null);
+  logo.onload  = () => drawCard(_cardData, logo, 'download');
+  logo.onerror = () => drawCard(_cardData, null, 'download');
 }
 
-function drawCard(logo) {
-  const canvas = document.getElementById('share-canvas');
+function renderHockeyCardPreview(cardData) {
+  _cardData = cardData;
+  const logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  logo.src = 'FalconsLogo.png';
+  logo.onload  = () => { drawCard(cardData, logo, 'preview'); drawCard(cardData, logo, 'download'); };
+  logo.onerror = () => { drawCard(cardData, null, 'preview'); drawCard(cardData, null, 'download'); };
+}
+
+function drawCard(cardData, logo, mode) {
+  const CW = 500, CH = 700, SCALE = 3;
+  const RW = CW * SCALE, RH = CH * SCALE;
+  const isPreview = mode === 'preview';
+  const canvas = isPreview
+    ? document.getElementById('hc-preview-canvas')
+    : document.getElementById('share-canvas');
+  if (!canvas) return;
+  canvas.width = RW; canvas.height = RH;
+  if (isPreview) { canvas.style.width = CW + 'px'; canvas.style.height = CH + 'px'; }
   const ctx = canvas.getContext('2d');
-  const W = 800, H = 420;
-  canvas.width = W; canvas.height = H;
+  ctx.scale(SCALE, SCALE);
+
+  const { name, number, position, rank, gp, goals, assists, points, ps_goals, gpg, apg, ppg, season } = cardData;
 
   // Background
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, '#1E1B52');
-  grad.addColorStop(1, '#2E2B6E');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
+  const bg = ctx.createLinearGradient(0, 0, CW, CH);
+  bg.addColorStop(0, '#12104A'); bg.addColorStop(0.5, '#1E1B52'); bg.addColorStop(1, '#2E2B6E');
+  ctx.fillStyle = bg; rrFill(ctx, 0, 0, CW, CH, 16);
 
-  // Subtle grid pattern
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // Top accent stripe
+  const stripe = ctx.createLinearGradient(0, 0, CW, 0);
+  stripe.addColorStop(0, '#4A46A0'); stripe.addColorStop(1, '#2E2B6E');
+  ctx.fillStyle = stripe; rrFill(ctx, 0, 0, CW, 8, 0);
 
-  // Jersey number circle
-  ctx.beginPath();
-  ctx.arc(130, H/2, 90, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(255,255,255,0.07)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  // Diagonal lines watermark
+  ctx.save(); ctx.globalAlpha = 0.04; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+  for (let i = -CH; i < CW + CH; i += 28) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+CH,CH); ctx.stroke(); }
+  ctx.restore();
 
-  // Jersey number
-  const playerNum = document.querySelector('.jersey-number')?.textContent || '';
-  ctx.fillStyle = 'white';
-  ctx.font = 'bold 72px Barlow Condensed, Arial Narrow, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('#' + playerNum, 130, H/2 + 24);
+  // Large number watermark
+  ctx.save(); ctx.globalAlpha = 0.05; ctx.fillStyle = '#fff';
+  ctx.font = \`bold \${CW*0.75}px Arial Narrow, sans-serif\`;
+  ctx.textAlign = 'center'; ctx.fillText('#'+number, CW/2, CH*0.58); ctx.restore();
 
-  // FALCONS label under number
-  ctx.font = '500 13px Barlow, Arial, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fillText('FALCONS', 130, H/2 + 54);
+  // Logo
+  const logoSize = 140, logoX = (CW-logoSize)/2, logoY = 28;
+  if (logo) { ctx.save(); ctx.globalAlpha = 0.92; ctx.drawImage(logo, logoX, logoY, logoSize, logoSize); ctx.restore(); }
 
-  // Player name
-  const name = document.querySelector('.profile-name')?.textContent || '';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'white';
-  ctx.font = 'bold 42px Barlow Condensed, Arial Narrow, sans-serif';
-  ctx.fillText(name, 250, 110);
+  // Banner
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; rrFill(ctx, 30, logoY+logoSize+10, CW-60, 22, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '500 11px Arial, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText("BILL'S DEK HOCKEY  ·  FALCONS  ·  "+season, CW/2, logoY+logoSize+25);
 
-  // Position + rank
-  const rankText = document.querySelector('.profile-rank')?.textContent || '';
-  ctx.font = '400 16px Barlow, Arial, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.fillText(rankText, 250, 142);
+  // Jersey number badge
+  const numY = logoY+logoSize+46;
+  ctx.fillStyle = 'rgba(255,255,255,0.1)'; rrFill(ctx, CW/2-36, numY, 72, 36, 8);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1; rrStroke(ctx, CW/2-36, numY, 72, 36, 8);
+  ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial Narrow, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('#'+number, CW/2, numY+24);
 
-  // Divider line
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(250, 160); ctx.lineTo(W - 40, 160); ctx.stroke();
+  // Name
+  const nameY = numY+56;
+  ctx.fillStyle = '#fff'; ctx.font = \`bold \${name.length>14?28:34}px Arial Narrow, sans-serif\`;
+  ctx.textAlign = 'center'; ctx.fillText(name.toUpperCase(), CW/2, nameY);
 
-  // Stat blocks
-  const pills = document.querySelectorAll('.stat-pill');
-  const stats = [];
-  pills.forEach(p => {
-    const val = p.querySelector('.stat-pill-val')?.textContent;
-    const label = p.querySelector('.stat-pill-label')?.textContent;
-    if (val && label) stats.push({ val, label });
-  });
+  // Position pill
+  const pillY = nameY+14;
+  const posLabel = position==='F'?'FORWARD':position==='D'?'DEFENSE':position==='G'?'GOALIE':position;
+  const pillText = posLabel+'  ·  RANK #'+rank;
+  const pillW = ctx.measureText(pillText).width+28;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; rrFill(ctx, (CW-pillW)/2, pillY, pillW, 22, 11);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '500 11px Arial, sans-serif';
+  ctx.fillText(pillText, CW/2, pillY+15);
 
-  const blockW = 100, startX = 250, statY = 210;
-  stats.slice(0, 5).forEach((s, i) => {
-    const x = startX + i * (blockW + 10);
-    // Box
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    roundRect(ctx, x, statY, blockW, 90, 10);
-    ctx.fill();
-    // Value
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 38px Barlow Condensed, Arial Narrow, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(s.val, x + blockW/2, statY + 52);
-    // Label
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '500 12px Barlow, Arial, sans-serif';
-    ctx.fillText(s.label, x + blockW/2, statY + 74);
+  // Divider
+  const divY = pillY+36;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(30,divY); ctx.lineTo(CW-30,divY); ctx.stroke();
+
+  // Stat grid
+  const statList = [{label:'GP',val:gp},{label:'G',val:goals},{label:'A',val:assists},{label:'PTS',val:points},{label:'PS',val:ps_goals}];
+  const cols=5, cellW=(CW-60)/cols, cellH=72, gridX=30, gridY=divY+12;
+  statList.forEach((s,i) => {
+    const cx = gridX+i*cellW+cellW/2;
+    const hi = s.label==='PTS';
+    ctx.fillStyle = hi?'rgba(255,255,255,0.14)':'rgba(255,255,255,0.06)';
+    rrFill(ctx, gridX+i*cellW+3, gridY, cellW-6, cellH, 8);
+    if (hi) { ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; rrStroke(ctx, gridX+i*cellW+3, gridY, cellW-6, cellH, 8); }
+    ctx.fillStyle = hi?'#fff':'rgba(255,255,255,0.9)';
+    ctx.font = \`bold \${s.val>=10?28:32}px Arial Narrow, sans-serif\`; ctx.textAlign='center';
+    ctx.fillText(String(s.val), cx, gridY+44);
+    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='500 10px Arial, sans-serif';
+    ctx.fillText(s.label, cx, gridY+62);
   });
 
   // Per-game rates
-  const rates = document.querySelector('.profile-rates')?.textContent || '';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.font = '400 13px Barlow, Arial, sans-serif';
-  ctx.fillText(rates.trim().replace(/\s+/g,' '), 250, 340);
+  const rateY = gridY+cellH+14;
+  ctx.fillStyle='rgba(255,255,255,0.08)'; rrFill(ctx, 30, rateY, CW-60, 28, 6);
+  [{r:gpg+' G/GP',i:0},{r:apg+' A/GP',i:1},{r:ppg+' PTS/GP',i:2}].forEach(({r,i}) => {
+    const rx = 30+((CW-60)/3)*i+(CW-60)/6;
+    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 11px Arial, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(r, rx, rateY+18);
+  });
 
-  // Season label
-  const season = document.getElementById('season-label')?.textContent || '';
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.font = '400 13px Barlow, Arial, sans-serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('Bill\'s Dek Hockey · Falcons · ' + season, W - 30, H - 20);
+  // Bottom bar
+  ctx.fillStyle='rgba(255,255,255,0.06)'; rrFill(ctx, 0, CH-8, CW, 8, 0);
 
-  // Falcons logo — top right corner
-  if (logo) {
-    const logoSize = 80;
-    ctx.globalAlpha = 0.75;
-    ctx.drawImage(logo, W - logoSize - 24, 20, logoSize, logoSize);
-    ctx.globalAlpha = 1.0;
+  if (!isPreview) {
+    const link = document.createElement('a');
+    link.download = name.replace(/\s+/g,'-')+'-falcons-card.png';
+    link.href = canvas.toDataURL('image/png'); link.click();
+    burstConfetti(document.getElementById('share-btn'));
   }
-
-  // Download
-  const link = document.createElement('a');
-  link.download = `${name.replace(/\s+/g,'-')}-stats.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-
-  // Confetti burst on the button
-  burstConfetti(document.getElementById('share-btn'));
+  if (isPreview) { canvas.style.cursor='pointer'; canvas.onclick = generateShareCard; }
 }
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
-  ctx.closePath();
+function rrFill(ctx,x,y,w,h,r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath(); ctx.fill();
+}
+function rrStroke(ctx,x,y,w,h,r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath(); ctx.stroke();
 }
 
 function burstConfetti(anchor) {
