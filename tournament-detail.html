@@ -34,10 +34,8 @@
 <footer class="site-footer">
   <span>Falcons Hockey</span>
 </footer>
-</div>
 
 <script>
-
 async function loadData() {
   const params = new URLSearchParams(window.location.search);
   const tid = params.get('t');
@@ -63,7 +61,6 @@ async function loadData() {
 
   document.title = `${t.name} — Falcons Hockey`;
 
-  // Stats
   let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
   t.games.forEach(g => {
     gf += g.falcons_score; ga += g.opponent_score;
@@ -91,7 +88,7 @@ async function loadData() {
     .sort((a, b) => b.points - a.points || b.goals - a.goals);
 
   const resultBadge = t.result
-    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : t.result.toLowerCase().includes('finalist') ? 'badge-finalist' : 'badge-finalist'}">${t.result}</span>`
+    ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}">${t.result}</span>`
     : '';
 
   const isUpcoming = t.games.length === 0;
@@ -126,7 +123,61 @@ async function loadData() {
       <td class="col-stat">${p.pim}</td>
     </tr>`).join('');
 
-  loadData();
+  document.getElementById('detail-content').innerHTML = `
+
+    <div class="td-hero">
+      <div class="td-hero-info">
+        <div class="td-title-row">
+          <h1 class="td-name">${t.name}</h1>
+          ${resultBadge}
+        </div>
+        <div class="td-meta">${formatDate(t.date)}${t.location ? ' · ' + t.location : ''}</div>
+      </div>
+      ${!isUpcoming ? `
+      <div class="td-record-block">
+        <div class="td-record">${w}–${l}–${tie}</div>
+        <div class="td-record-sub">GF ${gf} · GA ${ga}</div>
+      </div>` : `
+      <div class="td-upcoming-badge">Upcoming</div>`}
+    </div>
+
+    ${!isUpcoming ? `
+    <h2 class="section-title">Games</h2>
+    <div class="game-log-mini">${gameRows}</div>
+
+    <h2 class="section-title" style="margin-top:28px">Player stats</h2>
+    <div class="table-wrap">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-player">Player</th>
+            <th class="col-pos">Pos</th>
+            <th class="col-stat">GP</th>
+            <th class="col-stat">G</th>
+            <th class="col-stat">A</th>
+            <th class="col-stat">PTS</th>
+            <th class="col-stat">PS</th>
+            <th class="col-stat">PIM</th>
+          </tr>
+        </thead>
+        <tbody>${playerRows}</tbody>
+      </table>
+    </div>` : `
+    <div class="upcoming-card">
+      <div class="upcoming-icon">🗓</div>
+      <div class="upcoming-text">This tournament hasn't been played yet. Stats will appear here once games are logged.</div>
+    </div>`}
+  `;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+loadData();
 </script>
 </body>
 </html>
