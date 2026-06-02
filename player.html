@@ -249,6 +249,13 @@ function formatDate(d) {
 }
 
 function generateShareCard() {
+  const logo = new Image();
+  logo.src = 'FalconsLogo.png';
+  logo.onload = () => drawCard(logo);
+  logo.onerror = () => drawCard(null);
+}
+
+function drawCard(logo) {
   const canvas = document.getElementById('share-canvas');
   const ctx = canvas.getContext('2d');
   const W = 800, H = 420;
@@ -346,6 +353,14 @@ function generateShareCard() {
   ctx.font = '400 13px Barlow, Arial, sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText('Bill\'s Dek Hockey · Falcons · ' + season, W - 30, H - 20);
+
+  // Falcons logo — top right corner
+  if (logo) {
+    const logoSize = 80;
+    ctx.globalAlpha = 0.75;
+    ctx.drawImage(logo, W - logoSize - 24, 20, logoSize, logoSize);
+    ctx.globalAlpha = 1.0;
+  }
 
   // Download
   const link = document.createElement('a');
