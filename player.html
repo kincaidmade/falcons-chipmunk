@@ -376,17 +376,17 @@ function drawCard(cardData, logo, mode) {
     ctx.fillText(r, rx, rateY+18);
   });
 
-  // Bottom bar
-  ctx.fillStyle='rgba(255,255,255,0.06)'; rrFill(ctx, 0, CH-8, CW, 8, 0);
+  // Bottom accent bar — drawn BEFORE name so name sits on top
+  ctx.fillStyle='rgba(0,0,0,0.55)'; rrFill(ctx, 0, CH-72, CW, 72, 0);
+  ctx.fillStyle='rgba(255,255,255,0.06)'; rrFill(ctx, 0, CH-6, CW, 6, 0);
 
-  // ── Player name — bottom center, drawn last so it's on top ──
-  ctx.fillStyle = 'rgba(0,0,0,0.5)'; rrFill(ctx, 0, CH-70, CW, 62, 0);
+  // ── Player name — drawn last, guaranteed on top ──
   ctx.fillStyle = '#ffffff';
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
-  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+  ctx.shadowBlur = 6;
   ctx.font = 'bold ' + (name.length > 16 ? 26 : name.length > 12 ? 30 : 34) + 'px Arial Narrow, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(name.toUpperCase(), CW / 2, CH - 30);
+  ctx.fillText(name.toUpperCase(), CW / 2, CH - 26);
   ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
 
   if (!isPreview) {
