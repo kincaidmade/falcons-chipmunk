@@ -276,8 +276,8 @@ function renderHockeyCardPreview(cardData) {
   const logo = new Image();
   logo.crossOrigin = 'anonymous';
   logo.src = 'FalconsLogo.png';
-  logo.onload  = () => { drawCard(cardData, logo, 'preview'); drawCard(cardData, logo, 'download'); };
-  logo.onerror = () => { drawCard(cardData, null, 'preview'); drawCard(cardData, null, 'download'); };
+  logo.onload  = () => drawCard(cardData, logo, 'preview');
+  logo.onerror = () => drawCard(cardData, null, 'preview');
 }
 
 function drawCard(cardData, logo, mode) {
