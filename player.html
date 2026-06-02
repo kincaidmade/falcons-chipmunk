@@ -315,46 +315,36 @@ function drawCard(cardData, logo, mode) {
   ctx.font = 'bold ' + Math.round(CW*0.75) + 'px Arial Narrow, sans-serif';
   ctx.textAlign = 'center'; ctx.fillText('#'+number, CW/2, CH*0.58); ctx.restore();
 
-  // Logo — smaller, top left corner
-  const logoSize = 70, logoX = 20, logoY = 16;
-  if (logo) { ctx.save(); ctx.globalAlpha = 0.9; ctx.drawImage(logo, logoX, logoY, logoSize, logoSize); ctx.restore(); }
+  // Logo — centered top
+  const logoSize = 140, logoX = (CW-logoSize)/2, logoY = 28;
+  if (logo) { ctx.save(); ctx.globalAlpha = 0.92; ctx.drawImage(logo, logoX, logoY, logoSize, logoSize); ctx.restore(); }
 
-  // BILL'S DEK HOCKEY top right
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = '500 10px Arial, sans-serif'; ctx.textAlign = 'right';
-  ctx.fillText("BILL'S DEK HOCKEY  ·  FALCONS  ·  " + season, CW - 18, 32);
+  // Banner
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; rrFill(ctx, 30, logoY+logoSize+10, CW-60, 22, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '500 11px Arial, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText("BILL'S DEK HOCKEY  ·  FALCONS  ·  "+season, CW/2, logoY+logoSize+25);
 
-  // Large number watermark — centered
-  ctx.save(); ctx.globalAlpha = 0.06; ctx.fillStyle = '#fff';
-  ctx.font = 'bold ' + Math.round(CW * 0.72) + 'px Arial Narrow, sans-serif';
-  ctx.textAlign = 'center'; ctx.fillText('#' + number, CW / 2, CH * 0.52); ctx.restore();
+  // Large number watermark
+  ctx.save(); ctx.globalAlpha = 0.05; ctx.fillStyle = '#fff';
+  ctx.font = 'bold ' + Math.round(CW*0.75) + 'px Arial Narrow, sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText('#'+number, CW/2, CH*0.58); ctx.restore();
 
-  // ── NAME — big and prominent, upper center ──
-  const nameY = 120;
-  ctx.fillStyle = '#ffffff';
-  ctx.shadowColor = 'rgba(0,0,0,0.6)';
-  ctx.shadowBlur = 12;
-  const fontSize = name.length > 16 ? 36 : name.length > 12 ? 44 : 52;
-  ctx.font = 'bold ' + fontSize + 'px Arial Narrow, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(name.toUpperCase(), CW / 2, nameY);
-  ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
-
-  // Jersey number badge inline under name
-  const numY = nameY + 18;
-  ctx.fillStyle = 'rgba(255,255,255,0.1)'; rrFill(ctx, CW/2 - 40, numY, 80, 32, 8);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1; rrStroke(ctx, CW/2 - 40, numY, 80, 32, 8);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 18px Arial Narrow, sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('#' + number, CW / 2, numY + 22);
+  // Jersey number badge
+  const numY = logoY+logoSize+46;
+  ctx.fillStyle = 'rgba(255,255,255,0.1)'; rrFill(ctx, CW/2-36, numY, 72, 36, 8);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1; rrStroke(ctx, CW/2-36, numY, 72, 36, 8);
+  ctx.fillStyle = 'white'; ctx.font = 'bold 22px Arial Narrow, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('#'+number, CW/2, numY+24);
 
   // Position pill
-  const pillY = numY + 46;
-  const posLabel = position === 'F' ? 'FORWARD' : position === 'D' ? 'DEFENSE' : position === 'G' ? 'GOALIE' : position;
-  const pillText = posLabel + '  ·  RANK #' + rank;
+  const pillY = numY+46;
+  const posLabel = position==='F'?'FORWARD':position==='D'?'DEFENSE':position==='G'?'GOALIE':position;
+  const pillText = posLabel+'  ·  RANK #'+rank;
   ctx.font = '500 11px Arial, sans-serif';
-  const pillW = ctx.measureText(pillText).width + 28;
-  ctx.fillStyle = 'rgba(255,255,255,0.12)'; rrFill(ctx, (CW - pillW) / 2, pillY, pillW, 22, 11);
+  const pillW = ctx.measureText(pillText).width+28;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; rrFill(ctx, (CW-pillW)/2, pillY, pillW, 22, 11);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText(pillText, CW / 2, pillY + 15);
+  ctx.fillText(pillText, CW/2, pillY+15);
 
   // Divider
   const divY = pillY+36;
@@ -388,6 +378,16 @@ function drawCard(cardData, logo, mode) {
 
   // Bottom bar
   ctx.fillStyle='rgba(255,255,255,0.06)'; rrFill(ctx, 0, CH-8, CW, 8, 0);
+
+  // ── Player name — bottom center, drawn last so it's on top ──
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; rrFill(ctx, 0, CH-70, CW, 62, 0);
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.shadowBlur = 10;
+  ctx.font = 'bold ' + (name.length > 16 ? 26 : name.length > 12 ? 30 : 34) + 'px Arial Narrow, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(name.toUpperCase(), CW / 2, CH - 30);
+  ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
 
   if (!isPreview) {
     const link = document.createElement('a');
