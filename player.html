@@ -84,6 +84,7 @@ async function loadData() {
   });
 
   // Season totals
+  const name  = player.name;
   const gp    = player.gp_override || 0;
   const goals = gamelog.reduce((s, g) => s + g.goals, 0);
   const assists = gamelog.reduce((s, g) => s + g.assists, 0);
