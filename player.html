@@ -378,16 +378,27 @@ function drawCard(cardData, logo, mode) {
   });
 
   // Bottom accent bar — drawn BEFORE name so name sits on top
-  ctx.fillStyle='rgba(0,0,0,0.55)'; rrFill(ctx, 0, CH-72, CW, 72, 0);
+  ctx.fillStyle='rgba(0,0,0,0.55)'; rrFill(ctx, 0, CH-90, CW, 90, 0);
   ctx.fillStyle='rgba(255,255,255,0.06)'; rrFill(ctx, 0, CH-6, CW, 6, 0);
 
   // ── Player name — drawn last, guaranteed on top ──
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = 'rgba(0,0,0,0.9)';
-  ctx.shadowBlur = 6;
-  ctx.font = 'bold ' + (name.length > 16 ? 26 : name.length > 12 ? 30 : 34) + 'px Arial Narrow, sans-serif';
+  ctx.shadowBlur = 8;
+  ctx.letterSpacing = '4px';
+  const nameFontSize = name.length > 16 ? 28 : name.length > 12 ? 33 : 38;
+  ctx.font = '800 ' + nameFontSize + 'px Impact, Arial Narrow, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(name.toUpperCase(), CW / 2, CH - 26);
+  // Draw outline for extra pop
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 3;
+  ctx.strokeText(name.toUpperCase(), CW / 2, CH - 46);
+  ctx.fillText(name.toUpperCase(), CW / 2, CH - 46);
+  // Thin underline accent
+  const nameWidth = ctx.measureText(name.toUpperCase()).width;
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(CW/2 - nameWidth/2, CH - 36); ctx.lineTo(CW/2 + nameWidth/2, CH - 36); ctx.stroke();
   ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
 
   if (!isPreview) {
