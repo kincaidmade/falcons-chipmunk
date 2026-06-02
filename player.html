@@ -332,9 +332,15 @@ function drawCard(cardData, logo, mode) {
   ctx.fillText('#'+number, CW/2, numY+24);
 
   // Name
-  const nameY = numY+56;
-  ctx.fillStyle = '#fff'; ctx.font = 'bold ' + (name.length>14?28:34) + 'px Arial Narrow, sans-serif';
-  ctx.textAlign = 'center'; ctx.fillText(name.toUpperCase(), CW/2, nameY);
+  const nameY = numY + 68;
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 8;
+  ctx.font = 'bold ' + (name.length > 14 ? 26 : 32) + 'px Arial Narrow, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(name.toUpperCase(), CW / 2, nameY);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 
   // Position pill
   const pillY = nameY+14;
