@@ -978,3 +978,21 @@ body {
   background: #E9F7EF;
   color: #1B6B3A;
 }
+
+/* ── Sheet link button ── */
+.sheet-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: var(--navy-light);
+  color: var(--navy-dark);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--navy);
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sheet-link-btn:hover { background: var(--navy); color: var(--white); }
