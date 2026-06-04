@@ -897,7 +897,87 @@
       "date": "2026-06-03",
       "location": "Pittsburgh, PA",
       "result": "",
-      "games": []
+      "games": [
+        {
+          "id": "g11",
+          "opponent": "Jr. Gods",
+          "falcons_score": 1,
+          "opponent_score": 7,
+          "date": "2026-06-03",
+          "stats": [
+            {
+              "player_id": 1,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 4,
+              "goals": 0,
+              "assists": 1,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 7,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 14,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 15,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 16,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 27,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 29,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 41,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 43,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "t5",
