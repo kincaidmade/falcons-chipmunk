@@ -124,8 +124,12 @@ async function loadData() {
       <td class="col-stat">${p.pim}</td>
     </tr>`).join('');
 
-  const sheetLink = t.id === 't4'
-    ? `<a href="https://docs.google.com/spreadsheets/d/1GzpMbI44aZDjzLrjmgq_0NgYSCtY-n1qy6zwY5zNt88/edit?usp=drivesdk" target="_blank" class="sheet-link-btn">📊 View Tournament Schedule</a>`
+  const sheetLinks = {
+    't4': 'https://docs.google.com/spreadsheets/d/1GzpMbI44aZDjzLrjmgq_0NgYSCtY-n1qy6zwY5zNt88/edit?usp=drivesdk',
+    't5': 'https://docs.google.com/spreadsheets/d/1--2osCJk6fPt_0tyUegEgLT8xKgLI72zfMDeRpI5GCw/edit',
+  };
+  const sheetLink = sheetLinks[t.id]
+    ? `<a href="${sheetLinks[t.id]}" target="_blank" class="sheet-link-btn">📊 View Tournament Schedule</a>`
     : '';
 
   document.getElementById('detail-content').innerHTML = `
