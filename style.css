@@ -996,3 +996,90 @@ body {
   transition: background 0.15s;
 }
 .sheet-link-btn:hover { background: var(--navy); color: var(--white); }
+
+/* ── Head to head page ── */
+.h2h-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.h2h-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.h2h-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.h2h-opponent {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy-dark);
+}
+.h2h-record {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy-dark);
+}
+.h2h-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--gray-100);
+}
+.h2h-stat {
+  padding: 10px 8px;
+  text-align: center;
+}
+.h2h-stat-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy-dark);
+  line-height: 1;
+}
+.h2h-stat-label {
+  font-size: 10px;
+  color: var(--gray-400);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.h2h-games { padding: 10px 14px 14px; }
+.h2h-game-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 13px;
+}
+.h2h-game-row:last-child { border-bottom: none; }
+.h2h-game-tournament { font-size: 11px; color: var(--gray-400); margin-left: auto; white-space: nowrap; }
+.h2h-game-score {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy-dark);
+}
+.h2h-win-bar {
+  height: 4px;
+  background: var(--gray-100);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0 14px 14px;
+}
+.h2h-win-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--navy);
+  transition: width 0.4s ease;
+}

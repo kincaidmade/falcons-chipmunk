@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Opponents</title>
+<link rel="stylesheet" href="style.css">
+<script data-goatcounter="https://kincaidmade.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <img src="FalconsLogo.png" alt="Falcons logo" style="height:52px;width:52px;object-fit:contain;">
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2026 Season</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="tournament.html" class="nav-link">Tournaments</a>
+      <a href="opponents.html" class="nav-link active">Opponents</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+  <div id="opponents-content"><p class="loading-cell">Loading…</p></div>
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+</footer>
+
+<script>
+async function loadData() {
+  try {
+    const res = await fetch('data/stats.json');
+    const data = await res.json();
+    document.getElementById('season-label').textContent = (data.season || '') + ' Season';
+    render(data);
+  } catch(e) {
+    document.getElementById('opponents-content').innerHTML =
+      '<p class="loading-cell" style="color:#c0392b">Could not load stats.json.</p>';
+  }
+}
+
+function render(data) {
+  // Build opponent map
+  const opponents = {};
+  data.tournaments.forEach(t => {
+    t.games.forEach(g => {
+      if (!opponents[g.opponent]) {
+        opponents[g.opponent] = { name: g.opponent, w: 0, l: 0, tie: 0, gf: 0, ga: 0, games: [] };
+      }
+      const o = opponents[g.opponent];
+      o.gf += g.falcons_score;
+      o.ga += g.opponent_score;
+      if (g.falcons_score > g.opponent_score) o.w++;
+      else if (g.falcons_score < g.opponent_score) o.l++;
+      else o.tie++;
+      o.games.push({
+        date: g.date,
+        falcons_score: g.falcons_score,
+        opponent_score: g.opponent_score,
+        tournament: t.name,
+        result: g.falcons_score > g.opponent_score ? 'W' : g.falcons_score < g.opponent_score ? 'L' : 'T'
+      });
+    });
+  });
+
+  // Sort: most games played first, then alphabetically
+  const sorted = Object.values(opponents).sort((a, b) => {
+    const ag = a.w + a.l + a.tie, bg = b.w + b.l + b.tie;
+    return bg - ag || a.name.localeCompare(b.name);
+  });
+
+  const el = document.getElementById('opponents-content');
+
+  // Overall summary
+  let totalW = 0, totalL = 0, totalT = 0;
+  sorted.forEach(o => { totalW += o.w; totalL += o.l; totalT += o.tie; });
+
+  el.innerHTML = `
+    <div class="sc-card" style="margin-bottom:24px">
+      <div class="sc-header">
+        <div class="sc-header-info">
+          <div class="sc-team">Opponents faced</div>
+          <div class="sc-season">${sorted.length} teams · ${totalW + totalL + totalT} games played</div>
+        </div>
+        <div class="sc-record-block">
+          <div class="sc-record">${totalW}–${totalL}–${totalT}</div>
+          <div class="sc-record-sub">overall record</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h2h-grid">
+      ${sorted.map(o => opponentCard(o)).join('')}
+    </div>
+  `;
+}
+
+function opponentCard(o) {
+  const total = o.w + o.l + o.tie;
+  const winPct = total > 0 ? Math.round((o.w / total) * 100) : 0;
+  const diff = o.gf - o.ga;
+  const diffStr = diff > 0 ? '+' + diff : '' + diff;
+  const diffColor = diff > 0 ? '#1B6B3A' : diff < 0 ? '#791F1F' : 'var(--gray-600)';
+
+  const recordColor = o.w > o.l ? '#1B6B3A' : o.l > o.w ? '#791F1F' : 'var(--gray-600)';
+
+  const gameRows = o.games.map(g => {
+    const cls = g.result === 'W' ? 'result-w' : g.result === 'L' ? 'result-l' : 'result-t';
+    return `<div class="h2h-game-row">
+      <span class="result-badge ${cls}" style="width:22px;height:22px;font-size:11px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${g.result}</span>
+      <span class="h2h-game-score">${g.falcons_score}–${g.opponent_score}</span>
+      <span class="game-date" style="font-size:11px;color:var(--gray-400)">${formatDate(g.date)}</span>
+      <span class="h2h-game-tournament">${shortTournament(g.tournament)}</span>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="h2h-card">
+    <div class="h2h-header">
+      <div>
+        <div class="h2h-opponent">${o.name}</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${total} game${total !== 1 ? 's' : ''} played</div>
+      </div>
+      <div class="h2h-record" style="color:${recordColor}">${o.w}–${o.l}–${o.tie}</div>
+    </div>
+    <div class="h2h-stats-row">
+      <div class="h2h-stat">
+        <div class="h2h-stat-val">${o.gf}</div>
+        <div class="h2h-stat-label">GF</div>
+      </div>
+      <div class="h2h-stat">
+        <div class="h2h-stat-val">${o.ga}</div>
+        <div class="h2h-stat-label">GA</div>
+      </div>
+      <div class="h2h-stat">
+        <div class="h2h-stat-val" style="color:${diffColor}">${diffStr}</div>
+        <div class="h2h-stat-label">DIFF</div>
+      </div>
+      <div class="h2h-stat">
+        <div class="h2h-stat-val">${winPct}%</div>
+        <div class="h2h-stat-label">WIN%</div>
+      </div>
+    </div>
+    <div class="h2h-win-bar">
+      <div class="h2h-win-fill" style="width:${winPct}%;background:${recordColor}"></div>
+    </div>
+    <div class="h2h-games">${gameRows}</div>
+  </div>`;
+}
+
+function shortTournament(name) {
+  // Shorten long tournament names for the card
+  return name
+    .replace('Falcons Spring Shootout', 'Spring Shootout')
+    .replace("Murrysville Mother's Day Mayhem", "Mother's Day")
+    .replace('South Pittsburgh Faceoff', 'South Pgh')
+    .replace('Team Pittsburgh Three Rivers Championship', 'Three Rivers')
+    .replace('Riverview Hockey for Life', 'Riverview')
+    .replace('Mckeesport Tournament', 'Mckeesport')
+    .replace('Brookline Tournament', 'Brookline')
+    .replace('Venom Tournament', 'Venom');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+loadData();
+</script>
+</body>
+</html>
