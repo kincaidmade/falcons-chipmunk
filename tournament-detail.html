@@ -72,7 +72,7 @@ async function loadData() {
 
   const playerMap = {};
   data.players.forEach(p => {
-    playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0 };
+    playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0 };
   });
   t.games.forEach(g => {
     g.stats.forEach(s => {
@@ -82,6 +82,7 @@ async function loadData() {
       playerMap[s.player_id].assists  += s.assists  || 0;
       playerMap[s.player_id].ps_goals += s.ps_goals || 0;
       playerMap[s.player_id].pim      += s.pim      || 0;
+      playerMap[s.player_id].shutouts += s.shutout  || 0;
     });
   });
   const players = Object.values(playerMap)
@@ -121,7 +122,7 @@ async function loadData() {
       <td class="col-stat">${p.assists}</td>
       <td class="col-stat col-pts">${p.points}</td>
       <td class="col-stat">${p.ps_goals}</td>
-      <td class="col-stat">${p.pim}</td>
+      <td class="col-stat">${p.shutouts || 0}</td>
     </tr>`).join('');
 
   const sheetLinks = {
@@ -168,7 +169,7 @@ async function loadData() {
             <th class="col-stat">A</th>
             <th class="col-stat">PTS</th>
             <th class="col-stat">PS</th>
-            <th class="col-stat">PIM</th>
+            <th class="col-stat">SO</th>
           </tr>
         </thead>
         <tbody>${playerRows}</tbody>

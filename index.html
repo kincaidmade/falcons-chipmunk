@@ -62,7 +62,7 @@
           <th class="col-stat sortable" data-col="assists" title="Assists">A</th>
           <th class="col-stat sortable active-sort" data-col="points" title="Points">PTS</th>
           <th class="col-stat sortable" data-col="ps_goals" title="Penalty Shot Goals">PS</th>
-          <th class="col-stat sortable" data-col="pim" title="Penalty Minutes">PIM</th>
+          <th class="col-stat sortable" data-col="shutouts" title="Shutouts">SO</th>
         </tr>
       </thead>
       <tbody id="stats-body">
@@ -77,7 +77,7 @@
     <span>A = Assists</span>
     <span>PTS = Points (G+A)</span>
     <span>PS = Penalty Shot Goals</span>
-    <span>PIM = Penalty Minutes</span>
+    <span>SO = Shutouts</span>
   </div>
 
   <section class="game-log-section">
@@ -137,7 +137,7 @@ function calcStats(posFilter) {
   const games = getFilteredGames();
   const map = {};
   allData.players.forEach(p => {
-    map[p.id] = { ...p, gp: p.gp_override || 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, points: 0 };
+    map[p.id] = { ...p, gp: p.gp_override || 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0, points: 0 };
   });
   games.forEach(g => {
     g.stats.forEach(s => {
@@ -146,6 +146,7 @@ function calcStats(posFilter) {
       map[s.player_id].assists   += s.assists  || 0;
       map[s.player_id].ps_goals  += s.ps_goals || 0;
       map[s.player_id].pim       += s.pim      || 0;
+      map[s.player_id].shutouts  += s.shutout  || 0;
     });
   });
   Object.values(map).forEach(p => p.points = p.goals + p.assists);
@@ -296,7 +297,7 @@ function render() {
       <td class="col-stat">${p.assists}</td>
       <td class="col-stat col-pts">${p.points}</td>
       <td class="col-stat">${p.ps_goals}</td>
-      <td class="col-stat">${p.pim}</td>
+      <td class="col-stat">${p.shutouts || 0}</td>
     </tr>`;
   }).join('');
 }

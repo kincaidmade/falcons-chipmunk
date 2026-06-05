@@ -78,6 +78,7 @@ async function loadData() {
           assists: stat.assists || 0,
           ps_goals: stat.ps_goals || 0,
           pim: stat.pim || 0,
+          shutout: stat.shutout || 0,
           points: (stat.goals || 0) + (stat.assists || 0)
         });
       }
@@ -91,7 +92,8 @@ async function loadData() {
   const assists = gamelog.reduce((s, g) => s + g.assists, 0);
   const points  = goals + assists;
   const ps_goals = gamelog.reduce((s, g) => s + g.ps_goals, 0);
-  const pim     = gamelog.reduce((s, g) => s + g.pim, 0);
+  const pim      = gamelog.reduce((s, g) => s + g.pim, 0);
+  const shutouts = gamelog.reduce((s, g) => s + (g.shutout || 0), 0);
   const gpg     = gp > 0 ? (goals / gp).toFixed(2) : '—';
   const apg     = gp > 0 ? (assists / gp).toFixed(2) : '—';
   const ppg     = gp > 0 ? (points / gp).toFixed(2) : '—';
@@ -187,7 +189,7 @@ async function loadData() {
             <div class="stat-pill-label">PTS</div>
           </div>
           ${ps_goals > 0 ? `<div class="stat-pill"><div class="stat-pill-val">${ps_goals}</div><div class="stat-pill-label">PS</div></div>` : ''}
-          ${pim > 0 ? `<div class="stat-pill"><div class="stat-pill-val">${pim}</div><div class="stat-pill-label">PIM</div></div>` : ''}
+          ${shutouts > 0 ? `<div class="stat-pill"><div class="stat-pill-val">${shutouts}</div><div class="stat-pill-label">SO</div></div>` : ''}
         </div>
         <div class="profile-rates">
           <span>${gpg} G/GP</span>
