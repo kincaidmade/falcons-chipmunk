@@ -14,35 +14,35 @@
       "name": "Maddox Terreta",
       "number": 4,
       "position": "D",
-      "gp_override": 9
+      "gp_override": 10
     },
     {
       "id": 7,
       "name": "Avery Kincaid",
       "number": 7,
       "position": "F",
-      "gp_override": 13
+      "gp_override": 14
     },
     {
       "id": 14,
       "name": "Helena Turosik",
       "number": 14,
       "position": "F",
-      "gp_override": 13
+      "gp_override": 14
     },
     {
       "id": 15,
       "name": "Maddy Kincaid",
       "number": 15,
       "position": "F",
-      "gp_override": 13
+      "gp_override": 14
     },
     {
       "id": 16,
       "name": "Forrest Perry",
       "number": 16,
       "position": "F",
-      "gp_override": 13
+      "gp_override": 14
     },
     {
       "id": 27,
@@ -56,7 +56,7 @@
       "name": "Jacob Fox",
       "number": 29,
       "position": "G",
-      "gp_override": 13
+      "gp_override": 14
     },
     {
       "id": 41,
@@ -70,7 +70,7 @@
       "name": "Alex Gibson",
       "number": 43,
       "position": "D",
-      "gp_override": 13
+      "gp_override": 14
     }
   ],
   "tournaments": [
@@ -1133,6 +1133,85 @@
               "player_id": 43,
               "goals": 0,
               "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            }
+          ]
+        },
+        {
+          "id": "g14",
+          "opponent": "Sharks",
+          "falcons_score": 5,
+          "opponent_score": 1,
+          "date": "2026-06-06",
+          "stats": [
+            {
+              "player_id": 1,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 4,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 7,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 14,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 15,
+              "goals": 0,
+              "assists": 3,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 16,
+              "goals": 2,
+              "assists": 1,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 27,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 29,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 41,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 43,
+              "goals": 0,
+              "assists": 1,
               "pim": 0,
               "ps_goals": 0
             }
