@@ -7,7 +7,7 @@
       "name": "Lincoln Roth",
       "number": 1,
       "position": "D",
-      "gp_override": 4
+      "gp_override": 3
     },
     {
       "id": 4,
@@ -1554,7 +1554,7 @@
       "games": [
         {
           "id": "g19",
-          "opponent": "Cranberry",
+          "opponent": "Eagles",
           "falcons_score": 4,
           "opponent_score": 1,
           "date": "2026-06-26",
