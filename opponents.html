@@ -118,7 +118,7 @@ function opponentCard(o) {
     const cls = g.result === 'W' ? 'result-w' : g.result === 'L' ? 'result-l' : 'result-t';
     return `<div class="h2h-game-row">
       <span class="result-badge ${cls}" style="width:22px;height:22px;font-size:11px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${g.result}</span>
-      <span class="h2h-game-score">${g.falcons_score}–${g.opponent_score}</span>
+      <span class="h2h-game-score">${g.falcons_score}–${g.opponent_score}${g.note === 'OT' ? '<span class="ot-badge">OT</span>' : ''}</span>
       <span class="game-date" style="font-size:11px;color:var(--gray-400)">${formatDate(g.date)}</span>
       <span class="h2h-game-tournament">${shortTournament(g.tournament)}</span>
     </div>`;

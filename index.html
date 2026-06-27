@@ -315,7 +315,7 @@ function renderGameLog() {
       <span class="result-badge ${cls}">${result}</span>
       <div class="game-info">
         <span class="game-opponent">vs ${g.opponent}</span>
-        <span class="game-score">${g.falcons_score}–${g.opponent_score}</span>
+        <span class="game-score">${g.falcons_score}–${g.opponent_score}${g.note === 'OT' ? '<span class="ot-badge">OT</span>' : ''}</span>
       </div>
       <span class="game-tournament">${g.tournamentName}</span>
       <span class="game-date">${formatDate(g.date)}</span>
