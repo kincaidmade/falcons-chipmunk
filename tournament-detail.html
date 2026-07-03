@@ -64,7 +64,7 @@ async function loadData() {
   document.title = `${t.name} — Falcons Hockey`;
 
   let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
-  t.games.forEach(g => {
+  t.games.filter(g => !g.upcoming).forEach(g => {
     gf += g.falcons_score; ga += g.opponent_score;
     if (g.falcons_score > g.opponent_score) w++;
     else if (g.falcons_score < g.opponent_score) l++;
@@ -75,7 +75,7 @@ async function loadData() {
   data.players.forEach(p => {
     playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0 };
   });
-  t.games.forEach(g => {
+  t.games.filter(g => !g.upcoming).forEach(g => {
     if (!g.stats || g.stats.length === 0) return;
     g.stats.forEach(s => {
       if (!playerMap[s.player_id]) return;

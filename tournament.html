@@ -82,7 +82,7 @@ function renderTournaments(data) {
 
 function tournamentCard(t, data) {
   let w = 0, l = 0, tie = 0, gf = 0, ga = 0, totalPts = 0;
-  t.games.forEach(g => {
+  t.games.filter(g => !g.upcoming).forEach(g => {
     gf += g.falcons_score; ga += g.opponent_score;
     if (g.falcons_score > g.opponent_score) w++;
     else if (g.falcons_score < g.opponent_score) l++;
@@ -92,7 +92,7 @@ function tournamentCard(t, data) {
   // Top scorer in tournament
   const ptMap = {};
   data.players.forEach(p => { ptMap[p.id] = { name: p.name, number: p.number, pts: 0 }; });
-  t.games.forEach(g => g.stats.forEach(s => {
+  t.games.filter(g => !g.upcoming).forEach(g => g.stats.forEach(s => {
     if (ptMap[s.player_id]) ptMap[s.player_id].pts += (s.goals || 0) + (s.assists || 0);
   }));
   const topPlayer = Object.values(ptMap).sort((a,b) => b.pts - a.pts)[0];
