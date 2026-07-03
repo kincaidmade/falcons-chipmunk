@@ -1794,11 +1794,30 @@
     },
     {
       "id": "t7",
-      "name": "Brookline Tournament",
-      "date": "2026-07-10",
+      "name": "Brookline Cannon Classic",
+      "date": "2026-07-08",
       "location": "Brookline, PA",
       "result": "",
-      "games": []
+      "games": [
+        {
+          "id": "g22",
+          "opponent": "Jr. Gods",
+          "falcons_score": 0,
+          "opponent_score": 0,
+          "date": "2026-07-08",
+          "upcoming": true,
+          "stats": []
+        },
+        {
+          "id": "g23",
+          "opponent": "Jets",
+          "falcons_score": 0,
+          "opponent_score": 0,
+          "date": "2026-07-10",
+          "upcoming": true,
+          "stats": []
+        }
+      ]
     },
     {
       "id": "t8",
