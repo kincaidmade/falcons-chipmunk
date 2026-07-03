@@ -58,8 +58,8 @@ function renderTournaments(data) {
     return;
   }
 
-  const played   = data.tournaments.filter(t => t.games.length > 0);
-  const upcoming = data.tournaments.filter(t => t.games.length === 0);
+  const played   = data.tournaments.filter(t => t.games.filter(g => !g.upcoming).length > 0);
+  const upcoming = data.tournaments.filter(t => t.games.filter(g => !g.upcoming).length === 0);
 
   let html = '';
 
@@ -97,7 +97,7 @@ function tournamentCard(t, data) {
   }));
   const topPlayer = Object.values(ptMap).sort((a,b) => b.pts - a.pts)[0];
 
-  const isUpcoming = t.games.length === 0;
+  const isUpcoming = t.games.filter(g => !g.upcoming).length === 0;
   const resultBadge = t.result
     ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : t.result.toLowerCase().includes('finalist') ? 'badge-finalist' : 'badge-finalist'}" style="font-size:11px">${t.result}</span>`
     : '';

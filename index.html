@@ -180,7 +180,7 @@ function renderSummaryCard() {
   const topGoals = [...sorted].sort((a,b) => b.g - a.g)[0];
   const topAssts = [...sorted].sort((a,b) => b.a - a.a)[0];
 
-  const tourneysPlayed = allData.tournaments.filter(t => t.games.length > 0).length;
+  const tourneysPlayed = allData.tournaments.filter(t => t.games.filter(g => !g.upcoming).length > 0).length;
   const tourneysTotal  = allData.tournaments.length;
   const pct = tourneysTotal > 0 ? Math.round((tourneysPlayed / tourneysTotal) * 100) : 0;
   const winPct = (w + l + tie) > 0 ? Math.round((w / (w + l + tie)) * 100) : 0;
