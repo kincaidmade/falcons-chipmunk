@@ -76,6 +76,7 @@ async function loadData() {
     playerMap[p.id] = { ...p, gp: 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0 };
   });
   t.games.forEach(g => {
+    if (!g.stats || g.stats.length === 0) return;
     g.stats.forEach(s => {
       if (!playerMap[s.player_id]) return;
       playerMap[s.player_id].gp++;
@@ -94,9 +95,19 @@ async function loadData() {
     ? `<span class="tournament-result-badge ${t.result.toLowerCase().includes('champion') ? 'badge-champion' : 'badge-finalist'}">${t.result}</span>`
     : '';
 
-  const isUpcoming = t.games.length === 0;
+  const isUpcoming = t.games.filter(g => g.stats && g.stats.length > 0).length === 0;
 
   const gameRows = t.games.map(g => {
+    if (g.upcoming) {
+      return `<div class="game-card" style="opacity:0.6">
+        <span class="result-badge" style="background:var(--gray-100);color:var(--gray-400);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:11px;font-weight:700">TBD</span>
+        <div class="game-info">
+          <span class="game-opponent">vs ${g.opponent}</span>
+          <span style="font-size:12px;color:var(--gray-400)">Upcoming</span>
+        </div>
+        <span class="game-date">${formatDate(g.date)}</span>
+      </div>`;
+    }
     const result = g.falcons_score > g.opponent_score ? 'W' :
                    g.falcons_score < g.opponent_score ? 'L' : 'T';
     const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
@@ -130,6 +141,7 @@ async function loadData() {
     't4': 'https://docs.google.com/spreadsheets/d/1GzpMbI44aZDjzLrjmgq_0NgYSCtY-n1qy6zwY5zNt88/edit?usp=drivesdk',
     't5': 'https://docs.google.com/spreadsheets/d/1--2osCJk6fPt_0tyUegEgLT8xKgLI72zfMDeRpI5GCw/edit',
     't6': 'https://docs.google.com/spreadsheets/d/1SASt4rEtCsaRzJWs39PfaMu_ulOqE_Dy/edit?rtpof=true&gid=850166210#gid=850166210',
+    't7': 'https://docs.google.com/spreadsheets/d/1en-0Csv78X78DL1_s6Tseqmx3dws6RdoGlGTB6vGQ3U/edit?gid=739102748#gid=739102748',
   };
   const sheetLink = sheetLinks[t.id]
     ? `<a href="${sheetLinks[t.id]}" target="_blank" class="sheet-link-btn">📊 View Tournament Schedule</a>`
