@@ -2187,7 +2187,8 @@
               "goals": 0,
               "assists": 0,
               "pim": 0,
-              "ps_goals": 0
+              "ps_goals": 0,
+              "shutout": 1
             },
             {
               "player_id": 41,
