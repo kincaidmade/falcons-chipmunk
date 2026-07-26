@@ -21,7 +21,7 @@
       </div>
     </div>
     <nav class="site-nav">
-      <a href="index.html" class="nav-link">Leaderboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
       <a href="tournament.html" class="nav-link">Tournaments</a>
       <a href="opponents.html" class="nav-link">Opponents</a>
     </nav>
@@ -29,14 +29,14 @@
 </header>
 
 <main class="main-content">
-  <a href="index.html" class="back-link">← Back to leaderboard</a>
+  <a href="leaderboard.html" class="back-link">← Back to leaderboard</a>
   <div id="profile-content"><p class="loading-cell">Loading player…</p></div>
 </main>
 
 <footer class="site-footer">
   <span>Falcons Hockey</span>
   <span>·</span>
-  <a href="index.html">Leaderboard</a>
+  <a href="leaderboard.html">Leaderboard</a>
 </footer>
 
 <script>
@@ -59,7 +59,7 @@ async function loadData() {
   const player = data.players.find(p => p.id === playerId);
   if (!player) {
     document.getElementById('profile-content').innerHTML =
-      '<p class="loading-cell">Player not found. <a href="index.html">Back to leaderboard</a></p>';
+      '<p class="loading-cell">Player not found. <a href="leaderboard.html">Back to leaderboard</a></p>';
     return;
   }
 

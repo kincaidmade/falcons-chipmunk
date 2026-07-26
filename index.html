@@ -3,367 +3,302 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Falcons Hockey — Season Stats</title>
-<link rel="stylesheet" href="style.css">
-  <script data-goatcounter="https://kincaidmade.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<title>Falcons — Bill's Dek Hockey 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1E1B52;
+    --navy-dark: #12104A;
+    --navy-mid: #2E2B6E;
+    --white: #ffffff;
+    --ice: rgba(255,255,255,0.07);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--navy-dark);
+    font-family: 'Barlow', sans-serif;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* ── Ice rink background ── */
+  .rink {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, #2E2B6E 0%, #1E1B52 40%, #0D0B35 100%);
+  }
+
+  /* Rink lines */
+  .rink::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 30% at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.015) 60px),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.015) 60px);
+  }
+
+  /* Center circle */
+  .center-circle {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(420px, 85vw);
+    height: min(420px, 85vw);
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+  .center-circle::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  /* ── Logo ── */
+  .logo-wrap {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    z-index: 10;
+    animation: logo-drop 1s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes logo-drop {
+    from { opacity: 0; transform: translate(-50%, calc(-50% - 30px)) scale(0.85); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  .logo-img {
+    width: min(180px, 38vw);
+    height: min(180px, 38vw);
+    object-fit: contain;
+    filter: drop-shadow(0 0 40px rgba(100,90,255,0.4)) drop-shadow(0 0 80px rgba(60,50,200,0.2));
+    animation: logo-pulse 3s ease-in-out infinite;
+  }
+  @keyframes logo-pulse {
+    0%, 100% { filter: drop-shadow(0 0 40px rgba(100,90,255,0.4)) drop-shadow(0 0 80px rgba(60,50,200,0.2)); }
+    50%       { filter: drop-shadow(0 0 60px rgba(120,110,255,0.6)) drop-shadow(0 0 100px rgba(80,70,220,0.35)); }
+  }
+
+  /* ── Player name particles ── */
+  .player {
+    position: fixed;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: clamp(13px, 2vw, 18px);
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 5;
+    text-shadow: 0 0 20px rgba(150,140,255,0.5);
+    transition: opacity 0.3s;
+  }
+
+  /* ── Enter prompt ── */
+  .enter-wrap {
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+    animation: fade-up 1.2s 0.8s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  .enter-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(11px, 1.8vw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+  }
+  .enter-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: none;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 40px;
+    padding: 12px 36px;
+    cursor: pointer;
+    animation: btn-pulse 2s ease-in-out infinite;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .enter-btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.5);
+    transform: scale(1.04);
+  }
+  @keyframes btn-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0); }
+    50%       { box-shadow: 0 0 0 8px rgba(255,255,255,0.04); }
+  }
+
+  /* ── Season tag ── */
+  .season-tag {
+    position: fixed;
+    top: 32px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(11px, 1.6vw, 13px);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    z-index: 20;
+    animation: fade-up 1s 0.3s both;
+  }
+
+  /* ── Page transition ── */
+  .curtain {
+    position: fixed;
+    inset: 0;
+    background: var(--navy-dark);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .curtain.closing { opacity: 1; pointer-events: all; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player { animation: none !important; }
+    .logo-img { animation: none !important; }
+  }
+</style>
+<script data-goatcounter="https://kincaidmade.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="logo-block">
-      <div class="logo-icon" aria-hidden="true">
-        <img src="FalconsLogo.png" alt="Falcons logo" style="height:52px;width:52px;object-fit:contain;">
-      </div>
-      <div>
-        <div class="team-name">Falcons</div>
-        <div class="season-label" id="season-label">2026</div>
-      </div>
-    </div>
-    <nav class="site-nav">
-      <a href="index.html" class="nav-link active">Leaderboard</a>
-      <a href="tournament.html" class="nav-link">Tournaments</a>
-      <a href="opponents.html" class="nav-link">Opponents</a>
-    </nav>
-  </div>
-</header>
+<div class="rink"></div>
+<div class="center-circle"></div>
+<div class="curtain" id="curtain"></div>
 
-<main class="main-content">
+<div class="season-tag">Bill's Dek Hockey · 2026 Season</div>
 
-  <div class="summary-card" id="summary-card"></div>
+<div class="logo-wrap">
+  <img class="logo-img" src="FalconsLogo.png" alt="Falcons">
+</div>
 
-  <div class="page-controls">
-    <div class="control-group">
-      <label class="control-label" for="tournament-filter">Tournament</label>
-      <select id="tournament-filter" class="select-input">
-        <option value="all">All tournaments</option>
-      </select>
-    </div>
-    <div class="control-group">
-      <label class="control-label" for="position-filter">Position</label>
-      <select id="position-filter" class="select-input">
-        <option value="all">All positions</option>
-        <option value="F">Forwards</option>
-        <option value="D">Defense</option>
-        <option value="G">Goalies</option>
-      </select>
-    </div>
-    <div class="record-badge" id="record-badge"></div>
-  </div>
-
-  <div class="table-wrap">
-    <table class="stats-table" id="stats-table">
-      <thead>
-        <tr>
-          <th class="col-rank">#</th>
-          <th class="col-player">Player</th>
-          <th class="col-pos">Pos</th>
-          <th class="col-stat sortable active" data-col="gp" title="Games Played">GP</th>
-          <th class="col-stat sortable" data-col="goals" title="Goals">G</th>
-          <th class="col-stat sortable" data-col="assists" title="Assists">A</th>
-          <th class="col-stat sortable active-sort" data-col="points" title="Points">PTS</th>
-          <th class="col-stat sortable" data-col="ps_goals" title="Penalty Shot Goals">PS</th>
-          <th class="col-stat sortable" data-col="shutouts" title="Shutouts">SO</th>
-        </tr>
-      </thead>
-      <tbody id="stats-body">
-        <tr><td colspan="9" class="loading-cell">Loading stats…</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="table-legend">
-    <span>GP = Games Played</span>
-    <span>G = Goals</span>
-    <span>A = Assists</span>
-    <span>PTS = Points (G+A)</span>
-    <span>PS = Penalty Shot Goals</span>
-    <span>SO = Shutouts</span>
-  </div>
-
-  <section class="game-log-section">
-    <h2 class="section-title">Recent games</h2>
-    <div id="game-log"></div>
-  </section>
-
-</main>
-
-<footer class="site-footer">
-  <span>Falcons Hockey</span>
-</footer>
+<div class="enter-wrap">
+  <div class="enter-label">Tap anywhere to enter</div>
+  <button class="enter-btn" onclick="enterSite()">Enter →</button>
+</div>
 
 <script>
-let allData = null;
-let sortCol = 'points';
-let sortDir = 'desc';
+const players = [
+  { name: 'Lincoln Roth',   number: '1'  },
+  { name: 'Maddox Terreta', number: '4'  },
+  { name: 'Avery Kincaid',  number: '7'  },
+  { name: 'Helena Turosik', number: '14' },
+  { name: 'Maddy Kincaid',  number: '15' },
+  { name: 'Forrest Perry',  number: '16' },
+  { name: 'Collins Yoho',   number: '27' },
+  { name: 'Jacob Fox',      number: '29' },
+  { name: 'Reed Yoho',      number: '41' },
+  { name: 'Alex Gibson',    number: '43' },
+];
 
-async function loadData() {
-  try {
-    const res = await fetch('data/stats.json');
-    allData = await res.json();
-    document.getElementById('season-label').textContent = (allData.season || '') + ' Season';
-    populateTournamentFilter();
-    render();
-    animateCounters();
-    renderSummaryCard();
-    renderGameLog();
-  } catch(e) {
-    document.getElementById('stats-body').innerHTML =
-      '<tr><td colspan="9" class="loading-cell" style="color:#c0392b">Could not load stats.json — make sure the file is in the data/ folder.</td></tr>';
-  }
-}
+const W = window.innerWidth;
+const H = window.innerHeight;
+const cx = W / 2, cy = H / 2;
+const safeR = Math.min(W, H) * 0.22; // keep clear of logo
 
-function populateTournamentFilter() {
-  const sel = document.getElementById('tournament-filter');
-  allData.tournaments.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.id;
-    opt.textContent = t.name;
-    sel.appendChild(opt);
-  });
-}
+const nodes = players.map((p, i) => {
+  // Distribute evenly around the logo in an orbit
+  const baseAngle = (i / players.length) * Math.PI * 2;
+  const orbitR = Math.min(W, H) * (0.32 + (i % 3) * 0.06);
 
-function getFilteredGames() {
-  const tFilter = document.getElementById('tournament-filter').value;
-  let games = [];
-  allData.tournaments.forEach(t => {
-    if (tFilter === 'all' || tFilter === t.id) {
-      t.games.filter(g => !g.upcoming).forEach(g => games.push({ ...g, tournamentName: t.name }));
-    }
-  });
-  return games;
-}
-
-function calcStats(posFilter) {
-  const games = getFilteredGames();
-  const map = {};
-  allData.players.forEach(p => {
-    map[p.id] = { ...p, gp: p.gp_override || 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0, points: 0 };
-  });
-  games.forEach(g => {
-    g.stats.forEach(s => {
-      if (!map[s.player_id]) return;
-      map[s.player_id].goals     += s.goals    || 0;
-      map[s.player_id].assists   += s.assists  || 0;
-      map[s.player_id].ps_goals  += s.ps_goals || 0;
-      map[s.player_id].pim       += s.pim      || 0;
-      map[s.player_id].shutouts  += s.shutout  || 0;
-    });
-  });
-  Object.values(map).forEach(p => p.points = p.goals + p.assists);
-  let rows = Object.values(map);
-  if (posFilter !== 'all') rows = rows.filter(p => p.position === posFilter);
-  return rows;
-}
-
-function renderSummaryCard() {
-  const allGames = [];
-  allData.tournaments.forEach(t => t.games.filter(g => !g.upcoming).forEach(g => allGames.push({ ...g, tournamentName: t.name })));
-
-  let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
-  allGames.forEach(g => {
-    gf += g.falcons_score; ga += g.opponent_score;
-    if (g.falcons_score > g.opponent_score) w++;
-    else if (g.falcons_score < g.opponent_score) l++;
-    else tie++;
-  });
-
-  const totals = {};
-  allData.players.forEach(p => { totals[p.id] = { name: p.name, number: p.number, id: p.id, g: 0, a: 0 }; });
-  allGames.forEach(g => g.stats.forEach(s => {
-    if (!totals[s.player_id]) return;
-    totals[s.player_id].g += s.goals || 0;
-    totals[s.player_id].a += s.assists || 0;
-  }));
-  const sorted = Object.values(totals).map(p => ({ ...p, pts: p.g + p.a })).sort((a, b) => b.pts - a.pts);
-  const leader   = sorted[0];
-  const topGoals = [...sorted].sort((a,b) => b.g - a.g)[0];
-  const topAssts = [...sorted].sort((a,b) => b.a - a.a)[0];
-
-  const tourneysPlayed = allData.tournaments.filter(t => t.games.filter(g => !g.upcoming).length > 0).length;
-  const tourneysTotal  = allData.tournaments.length;
-  const pct = tourneysTotal > 0 ? Math.round((tourneysPlayed / tourneysTotal) * 100) : 0;
-  const winPct = (w + l + tie) > 0 ? Math.round((w / (w + l + tie)) * 100) : 0;
-  const diff = gf - ga;
-  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-  const diffColor = diff >= 0 ? 'var(--navy-dark)' : '#791F1F';
-
-  document.getElementById('summary-card').innerHTML = `
-    <div class="sc-card">
-      <div class="sc-header">
-        <div class="sc-logo-wrap">
-          <img src="FalconsLogo.png" alt="Falcons" style="height:44px;width:44px;object-fit:contain;">
-        </div>
-        <div class="sc-header-info">
-          <div class="sc-team">Falcons</div>
-          <div class="sc-season">${allData.season || ''} Season · Bill's Dek Hockey</div>
-        </div>
-        <div class="sc-record-block">
-          <div class="sc-record">${w}–${l}–${tie}</div>
-          <div class="sc-record-sub">${winPct}% win rate</div>
-        </div>
-      </div>
-
-      <div class="sc-stats-row">
-        <div class="sc-stat">
-          <div class="sc-stat-icon">🥅</div>
-          <div class="sc-stat-val">${gf}</div>
-          <div class="sc-stat-label">Goals for</div>
-        </div>
-        <div class="sc-divider"></div>
-        <div class="sc-stat">
-          <div class="sc-stat-icon">🚫</div>
-          <div class="sc-stat-val">${ga}</div>
-          <div class="sc-stat-label">Goals against</div>
-        </div>
-        <div class="sc-divider"></div>
-        <div class="sc-stat">
-          <div class="sc-stat-icon">📊</div>
-          <div class="sc-stat-val" style="color:${diffColor}">${diffStr}</div>
-          <div class="sc-stat-label">Goal diff</div>
-        </div>
-        <div class="sc-divider"></div>
-        <div class="sc-stat">
-          <div class="sc-stat-icon">🏒</div>
-          <div class="sc-stat-val">${allGames.length}</div>
-          <div class="sc-stat-label">Games played</div>
-        </div>
-      </div>
-
-      <div class="sc-leaders-row">
-        <a href="player.html?id=${leader?.id}" class="sc-leader-card sc-leader-link">
-          <div class="sc-leader-label">⭐ Leading scorer</div>
-          <div class="sc-leader-name">${leader?.name || '—'}</div>
-          <div class="sc-leader-stats">
-            <span class="sc-jersey">#${leader?.number}</span>
-            <span>${leader?.pts || 0} pts · ${leader?.g || 0}G ${leader?.a || 0}A</span>
-          </div>
-        </a>
-        <a href="player.html?id=${topGoals?.id}" class="sc-leader-card sc-leader-link">
-          <div class="sc-leader-label">🔥 Top goal scorer</div>
-          <div class="sc-leader-name">${topGoals?.name || '—'}</div>
-          <div class="sc-leader-stats">
-            <span class="sc-jersey">#${topGoals?.number}</span>
-            <span>${topGoals?.g || 0} goals this season</span>
-          </div>
-        </a>
-        <div class="sc-leader-card">
-          <div class="sc-leader-label">📅 Tournaments</div>
-          <div class="sc-leader-name">${tourneysPlayed} of ${tourneysTotal} played</div>
-          <div class="sc-progress-wrap">
-            <div class="sc-progress-bar" style="width:${pct}%"></div>
-          </div>
-          <div class="sc-leader-stats">${tourneysTotal - tourneysPlayed} remaining</div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function render() {
-  const posFilter = document.getElementById('position-filter').value;
-  let rows = calcStats(posFilter);
-  rows.sort((a, b) => {
-    const av = a[sortCol] ?? 0, bv = b[sortCol] ?? 0;
-    if (bv !== av) return sortDir === 'desc' ? bv - av : av - bv;
-    return b.points - a.points;
-  });
-
-  // Record badge
-  const games = getFilteredGames();
-  let w = 0, l = 0, t = 0;
-  games.forEach(g => {
-    if (g.falcons_score > g.opponent_score) w++;
-    else if (g.falcons_score < g.opponent_score) l++;
-    else t++;
-  });
-  document.getElementById('record-badge').textContent = `Record: ${w}–${l}–${t}`;
-
-  const tbody = document.getElementById('stats-body');
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No players found.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map((p, i) => {
-    const isTop = i === 0 && p.points > 0;
-    return `<tr class="${isTop ? 'row-top' : ''}">
-      <td class="col-rank">${i + 1}</td>
-      <td class="col-player">
-        <span class="player-num">#${p.number}</span>
-        <a class="player-name player-link" href="player.html?id=${p.id}">${p.name}</a>
-      </td>
-      <td class="col-pos"><span class="pos-badge pos-${p.position}">${p.position}</span></td>
-      <td class="col-stat">${p.gp}</td>
-      <td class="col-stat">${p.goals}</td>
-      <td class="col-stat">${p.assists}</td>
-      <td class="col-stat col-pts">${p.points}</td>
-      <td class="col-stat">${p.ps_goals}</td>
-      <td class="col-stat">${p.shutouts || 0}</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderGameLog() {
-  const games = getFilteredGames().slice().reverse().slice(0, 10);
-  const el = document.getElementById('game-log');
-  if (!games.length) { el.innerHTML = '<p class="no-games">No games logged yet.</p>'; return; }
-  el.innerHTML = games.map(g => {
-    const result = g.falcons_score > g.opponent_score ? 'W' :
-                   g.falcons_score < g.opponent_score ? 'L' : 'T';
-    const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
-    return `<div class="game-card">
-      <span class="result-badge ${cls}">${result}</span>
-      <div class="game-info">
-        <span class="game-opponent">vs ${g.opponent}</span>
-        <span class="game-score">${g.falcons_score}–${g.opponent_score}${g.note === 'OT' ? '<span class="ot-badge">OT</span>' : ''}</span>
-      </div>
-      <span class="game-tournament">${g.tournamentName}</span>
-      <span class="game-date">${formatDate(g.date)}</span>
-    </div>`;
-  }).join('');
-}
-
-function animateCounters() {
-  const els = document.querySelectorAll('.col-stat, .col-pts');
-  els.forEach(el => {
-    const val = parseInt(el.textContent);
-    if (isNaN(val) || val === 0) return;
-    let start = 0;
-    const duration = 600;
-    const startTime = performance.now();
-    function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(eased * val);
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = val;
-    }
-    requestAnimationFrame(step);
-  });
-}
-
-function formatDate(d) {
-  if (!d) return '';
-  const dt = new Date(d + 'T12:00:00');
-  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-document.getElementById('tournament-filter').addEventListener('change', () => { render(); renderGameLog(); });
-document.getElementById('position-filter').addEventListener('change', render);
-
-document.querySelectorAll('.sortable').forEach(th => {
-  th.addEventListener('click', () => {
-    const col = th.dataset.col;
-    if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-    else { sortCol = col; sortDir = 'desc'; }
-    document.querySelectorAll('.sortable').forEach(h => h.classList.remove('active-sort'));
-    th.classList.add('active-sort');
-    render();
-  });
+  return {
+    ...p,
+    x: cx + Math.cos(baseAngle) * orbitR,
+    y: cy + Math.sin(baseAngle) * orbitR,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    angle: baseAngle,
+    orbitR,
+    orbitSpeed: (0.0003 + Math.random() * 0.0002) * (Math.random() > 0.5 ? 1 : -1),
+    el: null,
+  };
 });
 
-loadData();
+// Create DOM elements
+nodes.forEach(n => {
+  const el = document.createElement('div');
+  el.className = 'player';
+  el.textContent = `#${n.number} ${n.name}`;
+  document.body.appendChild(el);
+  n.el = el;
+  // Stagger fade-in
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.6s';
+});
+
+// Fade players in staggered
+setTimeout(() => {
+  nodes.forEach((n, i) => {
+    setTimeout(() => { n.el.style.opacity = '1'; }, i * 100);
+  });
+}, 600);
+
+let raf;
+function animate(t) {
+  nodes.forEach(n => {
+    n.angle += n.orbitSpeed;
+    // Gentle drift on top of orbit
+    n.x = cx + Math.cos(n.angle) * n.orbitR + Math.sin(n.angle * 0.7) * 12;
+    n.y = cy + Math.sin(n.angle) * n.orbitR * 0.55 + Math.cos(n.angle * 0.9) * 10;
+
+    // Keep on screen
+    const hw = n.el.offsetWidth / 2;
+    const hh = n.el.offsetHeight / 2;
+    n.x = Math.max(hw + 10, Math.min(W - hw - 10, n.x));
+    n.y = Math.max(hh + 10, Math.min(H - hh - 10, n.y));
+
+    n.el.style.left = (n.x - n.el.offsetWidth / 2) + 'px';
+    n.el.style.top  = (n.y - n.el.offsetHeight / 2) + 'px';
+  });
+  raf = requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+function enterSite() {
+  cancelAnimationFrame(raf);
+  const curtain = document.getElementById('curtain');
+  curtain.classList.add('closing');
+  setTimeout(() => { window.location.href = 'leaderboard.html'; }, 500);
+}
+
+// Click anywhere to enter
+document.body.addEventListener('click', e => {
+  if (e.target.classList.contains('enter-btn')) return;
+  enterSite();
+});
+
+// Handle resize
+window.addEventListener('resize', () => location.reload());
 </script>
 </body>
 </html>

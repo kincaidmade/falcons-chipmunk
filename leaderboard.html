@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falcons Hockey — Season Stats</title>
+<link rel="stylesheet" href="style.css">
+  <script data-goatcounter="https://kincaidmade.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <img src="FalconsLogo.png" alt="Falcons logo" style="height:52px;width:52px;object-fit:contain;">
+      </div>
+      <div>
+        <div class="team-name">Falcons</div>
+        <div class="season-label" id="season-label">2026</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
+      <a href="tournament.html" class="nav-link">Tournaments</a>
+      <a href="opponents.html" class="nav-link">Opponents</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="summary-card" id="summary-card"></div>
+
+  <div class="page-controls">
+    <div class="control-group">
+      <label class="control-label" for="tournament-filter">Tournament</label>
+      <select id="tournament-filter" class="select-input">
+        <option value="all">All tournaments</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="position-filter">Position</label>
+      <select id="position-filter" class="select-input">
+        <option value="all">All positions</option>
+        <option value="F">Forwards</option>
+        <option value="D">Defense</option>
+        <option value="G">Goalies</option>
+      </select>
+    </div>
+    <div class="record-badge" id="record-badge"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="stats-table" id="stats-table">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th class="col-player">Player</th>
+          <th class="col-pos">Pos</th>
+          <th class="col-stat sortable active" data-col="gp" title="Games Played">GP</th>
+          <th class="col-stat sortable" data-col="goals" title="Goals">G</th>
+          <th class="col-stat sortable" data-col="assists" title="Assists">A</th>
+          <th class="col-stat sortable active-sort" data-col="points" title="Points">PTS</th>
+          <th class="col-stat sortable" data-col="ps_goals" title="Penalty Shot Goals">PS</th>
+          <th class="col-stat sortable" data-col="shutouts" title="Shutouts">SO</th>
+        </tr>
+      </thead>
+      <tbody id="stats-body">
+        <tr><td colspan="9" class="loading-cell">Loading stats…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-legend">
+    <span>GP = Games Played</span>
+    <span>G = Goals</span>
+    <span>A = Assists</span>
+    <span>PTS = Points (G+A)</span>
+    <span>PS = Penalty Shot Goals</span>
+    <span>SO = Shutouts</span>
+  </div>
+
+  <section class="game-log-section">
+    <h2 class="section-title">Recent games</h2>
+    <div id="game-log"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <span>Falcons Hockey</span>
+</footer>
+
+<script>
+let allData = null;
+let sortCol = 'points';
+let sortDir = 'desc';
+
+async function loadData() {
+  try {
+    const res = await fetch('data/stats.json');
+    allData = await res.json();
+    document.getElementById('season-label').textContent = (allData.season || '') + ' Season';
+    populateTournamentFilter();
+    render();
+    animateCounters();
+    renderSummaryCard();
+    renderGameLog();
+  } catch(e) {
+    document.getElementById('stats-body').innerHTML =
+      '<tr><td colspan="9" class="loading-cell" style="color:#c0392b">Could not load stats.json — make sure the file is in the data/ folder.</td></tr>';
+  }
+}
+
+function populateTournamentFilter() {
+  const sel = document.getElementById('tournament-filter');
+  allData.tournaments.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+}
+
+function getFilteredGames() {
+  const tFilter = document.getElementById('tournament-filter').value;
+  let games = [];
+  allData.tournaments.forEach(t => {
+    if (tFilter === 'all' || tFilter === t.id) {
+      t.games.filter(g => !g.upcoming).forEach(g => games.push({ ...g, tournamentName: t.name }));
+    }
+  });
+  return games;
+}
+
+function calcStats(posFilter) {
+  const games = getFilteredGames();
+  const map = {};
+  allData.players.forEach(p => {
+    map[p.id] = { ...p, gp: p.gp_override || 0, goals: 0, assists: 0, ps_goals: 0, pim: 0, shutouts: 0, points: 0 };
+  });
+  games.forEach(g => {
+    g.stats.forEach(s => {
+      if (!map[s.player_id]) return;
+      map[s.player_id].goals     += s.goals    || 0;
+      map[s.player_id].assists   += s.assists  || 0;
+      map[s.player_id].ps_goals  += s.ps_goals || 0;
+      map[s.player_id].pim       += s.pim      || 0;
+      map[s.player_id].shutouts  += s.shutout  || 0;
+    });
+  });
+  Object.values(map).forEach(p => p.points = p.goals + p.assists);
+  let rows = Object.values(map);
+  if (posFilter !== 'all') rows = rows.filter(p => p.position === posFilter);
+  return rows;
+}
+
+function renderSummaryCard() {
+  const allGames = [];
+  allData.tournaments.forEach(t => t.games.filter(g => !g.upcoming).forEach(g => allGames.push({ ...g, tournamentName: t.name })));
+
+  let w = 0, l = 0, tie = 0, gf = 0, ga = 0;
+  allGames.forEach(g => {
+    gf += g.falcons_score; ga += g.opponent_score;
+    if (g.falcons_score > g.opponent_score) w++;
+    else if (g.falcons_score < g.opponent_score) l++;
+    else tie++;
+  });
+
+  const totals = {};
+  allData.players.forEach(p => { totals[p.id] = { name: p.name, number: p.number, id: p.id, g: 0, a: 0 }; });
+  allGames.forEach(g => g.stats.forEach(s => {
+    if (!totals[s.player_id]) return;
+    totals[s.player_id].g += s.goals || 0;
+    totals[s.player_id].a += s.assists || 0;
+  }));
+  const sorted = Object.values(totals).map(p => ({ ...p, pts: p.g + p.a })).sort((a, b) => b.pts - a.pts);
+  const leader   = sorted[0];
+  const topGoals = [...sorted].sort((a,b) => b.g - a.g)[0];
+  const topAssts = [...sorted].sort((a,b) => b.a - a.a)[0];
+
+  const tourneysPlayed = allData.tournaments.filter(t => t.games.filter(g => !g.upcoming).length > 0).length;
+  const tourneysTotal  = allData.tournaments.length;
+  const pct = tourneysTotal > 0 ? Math.round((tourneysPlayed / tourneysTotal) * 100) : 0;
+  const winPct = (w + l + tie) > 0 ? Math.round((w / (w + l + tie)) * 100) : 0;
+  const diff = gf - ga;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+  const diffColor = diff >= 0 ? 'var(--navy-dark)' : '#791F1F';
+
+  document.getElementById('summary-card').innerHTML = `
+    <div class="sc-card">
+      <div class="sc-header">
+        <div class="sc-logo-wrap">
+          <img src="FalconsLogo.png" alt="Falcons" style="height:44px;width:44px;object-fit:contain;">
+        </div>
+        <div class="sc-header-info">
+          <div class="sc-team">Falcons</div>
+          <div class="sc-season">${allData.season || ''} Season · Bill's Dek Hockey</div>
+        </div>
+        <div class="sc-record-block">
+          <div class="sc-record">${w}–${l}–${tie}</div>
+          <div class="sc-record-sub">${winPct}% win rate</div>
+        </div>
+      </div>
+
+      <div class="sc-stats-row">
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🥅</div>
+          <div class="sc-stat-val">${gf}</div>
+          <div class="sc-stat-label">Goals for</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🚫</div>
+          <div class="sc-stat-val">${ga}</div>
+          <div class="sc-stat-label">Goals against</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">📊</div>
+          <div class="sc-stat-val" style="color:${diffColor}">${diffStr}</div>
+          <div class="sc-stat-label">Goal diff</div>
+        </div>
+        <div class="sc-divider"></div>
+        <div class="sc-stat">
+          <div class="sc-stat-icon">🏒</div>
+          <div class="sc-stat-val">${allGames.length}</div>
+          <div class="sc-stat-label">Games played</div>
+        </div>
+      </div>
+
+      <div class="sc-leaders-row">
+        <a href="player.html?id=${leader?.id}" class="sc-leader-card sc-leader-link">
+          <div class="sc-leader-label">⭐ Leading scorer</div>
+          <div class="sc-leader-name">${leader?.name || '—'}</div>
+          <div class="sc-leader-stats">
+            <span class="sc-jersey">#${leader?.number}</span>
+            <span>${leader?.pts || 0} pts · ${leader?.g || 0}G ${leader?.a || 0}A</span>
+          </div>
+        </a>
+        <a href="player.html?id=${topGoals?.id}" class="sc-leader-card sc-leader-link">
+          <div class="sc-leader-label">🔥 Top goal scorer</div>
+          <div class="sc-leader-name">${topGoals?.name || '—'}</div>
+          <div class="sc-leader-stats">
+            <span class="sc-jersey">#${topGoals?.number}</span>
+            <span>${topGoals?.g || 0} goals this season</span>
+          </div>
+        </a>
+        <div class="sc-leader-card">
+          <div class="sc-leader-label">📅 Tournaments</div>
+          <div class="sc-leader-name">${tourneysPlayed} of ${tourneysTotal} played</div>
+          <div class="sc-progress-wrap">
+            <div class="sc-progress-bar" style="width:${pct}%"></div>
+          </div>
+          <div class="sc-leader-stats">${tourneysTotal - tourneysPlayed} remaining</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const posFilter = document.getElementById('position-filter').value;
+  let rows = calcStats(posFilter);
+  rows.sort((a, b) => {
+    const av = a[sortCol] ?? 0, bv = b[sortCol] ?? 0;
+    if (bv !== av) return sortDir === 'desc' ? bv - av : av - bv;
+    return b.points - a.points;
+  });
+
+  // Record badge
+  const games = getFilteredGames();
+  let w = 0, l = 0, t = 0;
+  games.forEach(g => {
+    if (g.falcons_score > g.opponent_score) w++;
+    else if (g.falcons_score < g.opponent_score) l++;
+    else t++;
+  });
+  document.getElementById('record-badge').textContent = `Record: ${w}–${l}–${t}`;
+
+  const tbody = document.getElementById('stats-body');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No players found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((p, i) => {
+    const isTop = i === 0 && p.points > 0;
+    return `<tr class="${isTop ? 'row-top' : ''}">
+      <td class="col-rank">${i + 1}</td>
+      <td class="col-player">
+        <span class="player-num">#${p.number}</span>
+        <a class="player-name player-link" href="player.html?id=${p.id}">${p.name}</a>
+      </td>
+      <td class="col-pos"><span class="pos-badge pos-${p.position}">${p.position}</span></td>
+      <td class="col-stat">${p.gp}</td>
+      <td class="col-stat">${p.goals}</td>
+      <td class="col-stat">${p.assists}</td>
+      <td class="col-stat col-pts">${p.points}</td>
+      <td class="col-stat">${p.ps_goals}</td>
+      <td class="col-stat">${p.shutouts || 0}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderGameLog() {
+  const games = getFilteredGames().slice().reverse().slice(0, 10);
+  const el = document.getElementById('game-log');
+  if (!games.length) { el.innerHTML = '<p class="no-games">No games logged yet.</p>'; return; }
+  el.innerHTML = games.map(g => {
+    const result = g.falcons_score > g.opponent_score ? 'W' :
+                   g.falcons_score < g.opponent_score ? 'L' : 'T';
+    const cls = result === 'W' ? 'result-w' : result === 'L' ? 'result-l' : 'result-t';
+    return `<div class="game-card">
+      <span class="result-badge ${cls}">${result}</span>
+      <div class="game-info">
+        <span class="game-opponent">vs ${g.opponent}</span>
+        <span class="game-score">${g.falcons_score}–${g.opponent_score}${g.note === 'OT' ? '<span class="ot-badge">OT</span>' : ''}</span>
+      </div>
+      <span class="game-tournament">${g.tournamentName}</span>
+      <span class="game-date">${formatDate(g.date)}</span>
+    </div>`;
+  }).join('');
+}
+
+function animateCounters() {
+  const els = document.querySelectorAll('.col-stat, .col-pts');
+  els.forEach(el => {
+    const val = parseInt(el.textContent);
+    if (isNaN(val) || val === 0) return;
+    let start = 0;
+    const duration = 600;
+    const startTime = performance.now();
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * val);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = val;
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+document.getElementById('tournament-filter').addEventListener('change', () => { render(); renderGameLog(); });
+document.getElementById('position-filter').addEventListener('change', render);
+
+document.querySelectorAll('.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+    else { sortCol = col; sortDir = 'desc'; }
+    document.querySelectorAll('.sortable').forEach(h => h.classList.remove('active-sort'));
+    th.classList.add('active-sort');
+    render();
+  });
+});
+
+loadData();
+</script>
+</body>
+</html>
