@@ -7,70 +7,70 @@
       "name": "Lincoln Roth",
       "number": 1,
       "position": "D",
-      "gp_override": 6
+      "gp_override": 7
     },
     {
       "id": 4,
       "name": "Maddox Terreta",
       "number": 4,
       "position": "D",
-      "gp_override": 17
+      "gp_override": 18
     },
     {
       "id": 7,
       "name": "Avery Kincaid",
       "number": 7,
       "position": "F",
-      "gp_override": 27
+      "gp_override": 28
     },
     {
       "id": 14,
       "name": "Helena Turosik",
       "number": 14,
       "position": "F",
-      "gp_override": 27
+      "gp_override": 28
     },
     {
       "id": 15,
       "name": "Maddy Kincaid",
       "number": 15,
       "position": "F",
-      "gp_override": 27
+      "gp_override": 28
     },
     {
       "id": 16,
       "name": "Forrest Perry",
       "number": 16,
       "position": "F",
-      "gp_override": 27
+      "gp_override": 28
     },
     {
       "id": 27,
       "name": "Collins Yoho",
       "number": 27,
       "position": "SUB",
-      "gp_override": 18
+      "gp_override": 19
     },
     {
       "id": 29,
       "name": "Jacob Fox",
       "number": 29,
       "position": "G",
-      "gp_override": 27
+      "gp_override": 28
     },
     {
       "id": 41,
       "name": "Reed Yoho",
       "number": 41,
       "position": "SUB",
-      "gp_override": 18
+      "gp_override": 19
     },
     {
       "id": 43,
       "name": "Alex Gibson",
       "number": 43,
       "position": "D",
-      "gp_override": 24
+      "gp_override": 25
     }
   ],
   "tournaments": [
@@ -2045,7 +2045,7 @@
       "name": "Steel City Showcase",
       "date": "2026-07-24",
       "location": "",
-      "result": "",
+      "result": "B Championship Winners",
       "games": [
         {
           "id": "g25",
@@ -2272,6 +2272,86 @@
             {
               "player_id": 41,
               "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 43,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            }
+          ]
+        },
+        {
+          "id": "g28",
+          "opponent": "Eagles",
+          "falcons_score": 9,
+          "opponent_score": 0,
+          "date": "2026-07-26",
+          "stats": [
+            {
+              "player_id": 1,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 4,
+              "goals": 2,
+              "assists": 1,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 7,
+              "goals": 0,
+              "assists": 1,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 14,
+              "goals": 2,
+              "assists": 5,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 15,
+              "goals": 1,
+              "assists": 2,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 16,
+              "goals": 1,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 27,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0
+            },
+            {
+              "player_id": 29,
+              "goals": 0,
+              "assists": 0,
+              "pim": 0,
+              "ps_goals": 0,
+              "shutout": 1
+            },
+            {
+              "player_id": 41,
+              "goals": 2,
               "assists": 0,
               "pim": 0,
               "ps_goals": 0
