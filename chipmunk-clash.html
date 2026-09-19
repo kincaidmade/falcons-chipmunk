@@ -73,9 +73,9 @@
     align-items: center;
     gap: 6px;
   }
-  .team-white { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+  .team-red   { background: rgba(239,68,68,0.25); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.4); }
   .team-blue  { background: rgba(59,130,246,0.25); color: #93C5FD; border: 1px solid rgba(59,130,246,0.4); }
-  .team-gray  { background: rgba(148,163,184,0.2); color: #CBD5E1; border: 1px solid rgba(148,163,184,0.35); }
+  .team-black { background: rgba(30,30,30,0.4); color: #D1D5DB; border: 1px solid rgba(100,100,100,0.4); }
 
   .format-bar {
     display: flex;
@@ -160,9 +160,9 @@
     border-radius: 12px;
     margin: 0 2px;
   }
-  .tag-white { background: var(--gray-100); color: var(--gray-800); border: 1px solid var(--gray-300); }
+  .tag-red   { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
   .tag-blue  { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
-  .tag-gray  { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+  .tag-black { background: #1F2937; color: #F9FAFB; border: 1px solid #374151; }
 
   .vs-badge {
     font-size: 11px;
@@ -218,9 +218,9 @@
     padding: 10px 16px;
     text-transform: uppercase;
   }
-  .team-white-header { background: var(--gray-100); color: var(--gray-800); border-bottom: 1px solid var(--gray-200); }
+  .team-red-header   { background: #FEE2E2; color: #991B1B; border-bottom: 1px solid #FECACA; }
   .team-blue-header  { background: #DBEAFE; color: #1D4ED8; border-bottom: 1px solid #BFDBFE; }
-  .team-gray-header  { background: #F1F5F9; color: #475569; border-bottom: 1px solid #CBD5E1; }
+  .team-black-header { background: #1F2937; color: #F9FAFB; border-bottom: 1px solid #374151; }
   .roster-list {
     list-style: none;
     padding: 10px 0;
@@ -271,16 +271,16 @@
     <div class="clash-date">📅 Friday, September 25, 2026</div>
     <div class="clash-subtitle">3v3 In-House Tournament</div>
     <div class="teams-row">
-      <button class="team-pill team-white" onclick="toggleRoster('white')">⚪ White</button>
+      <button class="team-pill team-red" onclick="toggleRoster('red')">🔴 Red</button>
       <button class="team-pill team-blue" onclick="toggleRoster('blue')">🔵 Blue</button>
-      <button class="team-pill team-gray" onclick="toggleRoster('gray')">🩶 Gray</button>
+      <button class="team-pill team-black" onclick="toggleRoster('black')">⚫ Black</button>
     </div>
   </div>
 
   <!-- Team Rosters -->
   <div class="rosters-wrap">
-    <div class="roster-card" id="roster-white" style="display:none">
-      <div class="roster-header team-white-header">⚪ White Team</div>
+    <div class="roster-card" id="roster-red" style="display:none">
+      <div class="roster-header team-red-header">🔴 Red Team</div>
       <ul class="roster-list">
         <li>🥅 Declan — Goalie</li>
         <li>Maddy</li>
@@ -299,8 +299,8 @@
         <li>Colson</li>
       </ul>
     </div>
-    <div class="roster-card" id="roster-gray" style="display:none">
-      <div class="roster-header team-gray-header">🩶 Gray Team</div>
+    <div class="roster-card" id="roster-black" style="display:none">
+      <div class="roster-header team-black-header">⚫ Black Team</div>
       <ul class="roster-list">
         <li>🥅 Jacob — Goalie</li>
         <li>Forrest</li>
@@ -332,9 +332,7 @@
           <td class="time-col">5:30 – 5:45 PM</td>
           <td class="event-col">Check-In &amp; Warm-Up</td>
           <td>
-            <span class="team-tag tag-white">⚪ White</span>
-            <span class="team-tag tag-blue">🔵 Blue</span>
-            <span class="team-tag tag-gray">🩶 Gray</span>
+            <strong style="color:#991B1B">Red</strong> · <strong style="color:#1D4ED8">Blue</strong> · <strong>Black</strong>
           </td>
         </tr>
 
@@ -342,9 +340,7 @@
           <td class="time-col">5:45 – 6:10 PM</td>
           <td class="event-col"><span class="game-num">1</span>Round Robin – Game 1</td>
           <td>
-            <span class="team-tag tag-white">⚪ White</span>
-            <span class="vs-badge">VS</span>
-            <span class="team-tag tag-blue">🔵 Blue</span>
+            <strong style="color:#991B1B">Red</strong> vs <strong style="color:#1D4ED8">Blue</strong>
           </td>
         </tr>
 
@@ -358,9 +354,7 @@
           <td class="time-col">6:15 – 6:40 PM</td>
           <td class="event-col"><span class="game-num">2</span>Round Robin – Game 2</td>
           <td>
-            <span class="team-tag tag-white">⚪ White</span>
-            <span class="vs-badge">VS</span>
-            <span class="team-tag tag-gray">🩶 Gray</span>
+            <strong style="color:#991B1B">Red</strong> vs <strong>Black</strong>
           </td>
         </tr>
 
@@ -374,9 +368,7 @@
           <td class="time-col">6:45 – 7:10 PM</td>
           <td class="event-col"><span class="game-num">3</span>Round Robin – Game 3</td>
           <td>
-            <span class="team-tag tag-blue">🔵 Blue</span>
-            <span class="vs-badge">VS</span>
-            <span class="team-tag tag-gray">🩶 Gray</span>
+            <strong style="color:#1D4ED8">Blue</strong> vs <strong>Black</strong>
           </td>
         </tr>
 
@@ -428,8 +420,8 @@
 
 <script>
 function toggleRoster(team) {
-  const cards = { white: 'roster-white', blue: 'roster-blue', gray: 'roster-gray' };
-  const btns  = { white: 0, blue: 1, gray: 2 };
+  const cards = { red: 'roster-red', blue: 'roster-blue', black: 'roster-black' };
+  const btns  = { red: 0, blue: 1, black: 2 };
   const pills = document.querySelectorAll('.team-pill');
   const card  = document.getElementById(cards[team]);
   const isOpen = card.style.display !== 'none';
