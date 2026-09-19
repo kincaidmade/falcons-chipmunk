@@ -186,6 +186,54 @@
     flex-shrink: 0;
   }
 
+  .team-pill { cursor: pointer; border: none; transition: transform 0.15s, opacity 0.15s; }
+  .team-pill:hover { transform: scale(1.06); opacity: 0.9; }
+  .team-pill.active { outline: 2px solid rgba(255,255,255,0.6); outline-offset: 2px; }
+
+  .rosters-wrap {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .roster-card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    animation: roster-drop 0.25s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes roster-drop {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .roster-header {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 10px 16px;
+    text-transform: uppercase;
+  }
+  .team-white-header { background: var(--gray-100); color: var(--gray-800); border-bottom: 1px solid var(--gray-200); }
+  .team-blue-header  { background: #DBEAFE; color: #1D4ED8; border-bottom: 1px solid #BFDBFE; }
+  .team-gray-header  { background: #F1F5F9; color: #475569; border-bottom: 1px solid #CBD5E1; }
+  .roster-list {
+    list-style: none;
+    padding: 10px 0;
+  }
+  .roster-list li {
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-800);
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .roster-list li:last-child { border-bottom: none; }
+
   @media (max-width: 600px) {
     .schedule-table th:last-child,
     .schedule-table td:last-child { display: none; }
@@ -223,9 +271,43 @@
     <div class="clash-date">📅 Friday, September 25, 2026</div>
     <div class="clash-subtitle">3v3 In-House Tournament</div>
     <div class="teams-row">
-      <span class="team-pill team-white">⚪ White</span>
-      <span class="team-pill team-blue">🔵 Blue</span>
-      <span class="team-pill team-gray">🩶 Gray</span>
+      <button class="team-pill team-white" onclick="toggleRoster('white')">⚪ White</button>
+      <button class="team-pill team-blue" onclick="toggleRoster('blue')">🔵 Blue</button>
+      <button class="team-pill team-gray" onclick="toggleRoster('gray')">🩶 Gray</button>
+    </div>
+  </div>
+
+  <!-- Team Rosters -->
+  <div class="rosters-wrap">
+    <div class="roster-card" id="roster-white" style="display:none">
+      <div class="roster-header team-white-header">⚪ White Team</div>
+      <ul class="roster-list">
+        <li>🥅 Declan — Goalie</li>
+        <li>Maddy</li>
+        <li>Indy</li>
+        <li>Lincoln</li>
+        <li>Grayson</li>
+      </ul>
+    </div>
+    <div class="roster-card" id="roster-blue" style="display:none">
+      <div class="roster-header team-blue-header">🔵 Blue Team</div>
+      <ul class="roster-list">
+        <li>🥅 Alex — Goalie</li>
+        <li>Maddox</li>
+        <li>Helena</li>
+        <li>Luke W</li>
+        <li>Colson</li>
+      </ul>
+    </div>
+    <div class="roster-card" id="roster-gray" style="display:none">
+      <div class="roster-header team-gray-header">🩶 Gray Team</div>
+      <ul class="roster-list">
+        <li>🥅 Jacob — Goalie</li>
+        <li>Forrest</li>
+        <li>Judah</li>
+        <li>Avery</li>
+        <li>Luke C</li>
+      </ul>
     </div>
   </div>
 
@@ -344,5 +426,24 @@
   <span>Falcons Hockey · 2026</span>
 </footer>
 
+<script>
+function toggleRoster(team) {
+  const cards = { white: 'roster-white', blue: 'roster-blue', gray: 'roster-gray' };
+  const btns  = { white: 0, blue: 1, gray: 2 };
+  const pills = document.querySelectorAll('.team-pill');
+  const card  = document.getElementById(cards[team]);
+  const isOpen = card.style.display !== 'none';
+
+  // Close all
+  Object.values(cards).forEach(id => document.getElementById(id).style.display = 'none');
+  pills.forEach(p => p.classList.remove('active'));
+
+  // Toggle clicked
+  if (!isOpen) {
+    card.style.display = 'block';
+    pills[btns[team]].classList.add('active');
+  }
+}
+</script>
 </body>
 </html>
